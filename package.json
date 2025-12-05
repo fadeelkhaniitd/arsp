@@ -50,6 +50,7 @@
     "verify": "yarn hardhat:verify"
   },
   "devDependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
     "husky": "~9.1.6",
     "lint-staged": "~13.2.2"
   },

@@ -3142,6 +3142,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts@npm:^5.4.0":
+  version: 5.5.0
+  resolution: "@openzeppelin/contracts@npm:5.5.0"
+  checksum: 77a5140be7f57190e0bae53ead7ff2f266d418ade90c2b281fddc3e812d8c26a7b4143dd290e68cf4635dcdbb147699603f0c50ea1dacec0bfba59b3ce2c75bc
+  languageName: node
+  linkType: hard
+
 "@openzeppelin/contracts@npm:~5.0.2":
   version: 5.0.2
   resolution: "@openzeppelin/contracts@npm:5.0.2"
@@ -15195,6 +15202,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "se-2@workspace:."
   dependencies:
+    "@openzeppelin/contracts": ^5.4.0
     husky: ~9.1.6
     lint-staged: ~13.2.2
   languageName: unknown
