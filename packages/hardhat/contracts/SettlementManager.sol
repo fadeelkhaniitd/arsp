@@ -12,18 +12,27 @@ contract SettlementManager {
         address token;
         address from;
         address to;
-        uint256 amount;   // ERC-20 amount
-        uint256 tokenId;  // ERC-721 id
+        uint256 amount;   // ERC20 amount
+        uint256 tokenId;  // ERC721 token id
         bool    isERC721;
     }
 
+    // Intent now includes feeToken + feeAmount
     struct SignedIntent {
         address party;
         uint256 nonce;
         uint256 expiry;
         uint256 epochId;
         bytes32 settlementHash;
+        address feeToken;
+        uint256 feeAmount;
         bytes   signature;
+    }
+
+    struct FeeLock {
+        address party;
+        address token;
+        uint256 amount;
     }
 
     struct SettlementRecord {
@@ -33,6 +42,7 @@ contract SettlementManager {
         bytes32          settlementHash;
         address          submitter;
         AssetTransfer[]  transfers;
+        FeeLock[]        feeLocks;
     }
 
     Vault     public vault;
@@ -40,35 +50,41 @@ contract SettlementManager {
     OracleHub public oracleHub;
 
     uint256 public challengeWindowBlocks;
+    uint256 public maxSnapshotAge;
+    uint256 public maxFairnessRatioBps;
 
-    // EIP-712 domain
+    // EIP-712
     bytes32 public DOMAIN_SEPARATOR;
-    bytes32 public constant USER_INTENT_TYPEHASH =
-        keccak256("UserIntent(address party,uint256 nonce,uint256 expiry,uint256 epochId,bytes32 settlementHash)");
 
-    // Nonces and settlements
+    // Must match frontend’s typed data
+    bytes32 public constant USER_INTENT_TYPEHASH =
+        keccak256(
+            "UserIntent(address party,uint256 nonce,uint256 expiry,uint256 epochId,bytes32 settlementHash,address feeToken,uint256 feeAmount)"
+        );
+
+    // storage
     mapping(address => mapping(uint256 => bool)) public nonceUsed;
     mapping(uint256 => SettlementRecord) public settlements;
     uint256 public nextSettlementId;
 
-    // --- submitter staking & slashing ---
-
+    // submitter staking
     address public owner;
-    mapping(address => uint256) public submitterStake;           // submitter => ETH stake
-    mapping(address => uint256) public pendingSettlementsCount;  // submitter => number of pending settlements
+    mapping(address => uint256) public submitterStake;
+    mapping(address => uint256) public pendingSettlementsCount;
 
-    uint256 public minSubmitterStake;  // minimum stake required to submit
-    uint256 public slashAmount;        // amount of stake to slash on invalidation (in wei)
+    uint256 public minSubmitterStake;
+    uint256 public slashAmount;
 
     event SettlementPending(uint256 indexed id, uint256 epochId, bytes32 hash, address submitter);
     event SettlementFinalized(uint256 indexed id);
     event SettlementInvalidated(uint256 indexed id, address challenger);
-    event SubmitterStaked(address indexed submitter, uint256 amount);
-    event SubmitterUnstaked(address indexed submitter, uint256 amount);
-    event SubmitterSlashed(address indexed submitter, uint256 amount, address indexed challenger, uint256 reward);
+
+    event SubmitterStaked(address indexed who, uint256 amount);
+    event SubmitterUnstaked(address indexed who, uint256 amount);
+    event SubmitterSlashed(address indexed who, uint256 amount, address challenger, uint256 reward);
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "SettlementManager: not owner");
+        require(msg.sender == owner, "not owner");
         _;
     }
 
@@ -78,16 +94,21 @@ contract SettlementManager {
         address _oracleHub,
         uint256 _challengeWindowBlocks,
         uint256 _minSubmitterStake,
-        uint256 _slashAmount
+        uint256 _slashAmount,
+        uint256 _maxSnapshotAge,
+        uint256 _maxFairnessRatioBps
     ) {
         vault = Vault(_vault);
         nftVault = NFTVault(_nftVault);
         oracleHub = OracleHub(_oracleHub);
-        challengeWindowBlocks = _challengeWindowBlocks;
 
-        owner = msg.sender;
+        challengeWindowBlocks = _challengeWindowBlocks;
         minSubmitterStake = _minSubmitterStake;
         slashAmount = _slashAmount;
+        maxSnapshotAge = _maxSnapshotAge;
+        maxFairnessRatioBps = _maxFairnessRatioBps;
+
+        owner = msg.sender;
 
         uint256 chainId;
         assembly {
@@ -96,9 +117,7 @@ contract SettlementManager {
 
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes("SettlementManager")),
                 keccak256(bytes("1")),
                 chainId,
@@ -107,191 +126,326 @@ contract SettlementManager {
         );
     }
 
-    // ----------------- OWNER CONFIG -----------------
+    /*//////////////////////////////////////////////////////////////
+                        OWNER CONFIG
+    //////////////////////////////////////////////////////////////*/
 
-    function setMinSubmitterStake(uint256 _minStake) external onlyOwner {
-        minSubmitterStake = _minStake;
+    function setMinSubmitterStake(uint256 a) external onlyOwner {
+        minSubmitterStake = a;
     }
 
-    function setSlashAmount(uint256 _slashAmount) external onlyOwner {
-        slashAmount = _slashAmount;
+    function setSlashAmount(uint256 a) external onlyOwner {
+        slashAmount = a;
     }
 
-    // ----------------- SUBMITTER STAKING -----------------
+    function setMaxSnapshotAge(uint256 a) external onlyOwner {
+        maxSnapshotAge = a;
+    }
 
-    /// @notice Stake ETH to become a submitter.
+    function setMaxFairnessRatioBps(uint256 a) external onlyOwner {
+        maxFairnessRatioBps = a;
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        STAKING
+    //////////////////////////////////////////////////////////////*/
+
     function stake() external payable {
-        require(msg.value > 0, "stake: no value");
+        require(msg.value > 0, "no value");
         submitterStake[msg.sender] += msg.value;
         emit SubmitterStaked(msg.sender, msg.value);
     }
 
-    /// @notice Unstake ETH. You must have no pending settlements.
     function unstake(uint256 amount) external {
-        require(pendingSettlementsCount[msg.sender] == 0, "unstake: pending settlements");
-        require(submitterStake[msg.sender] >= amount, "unstake: insufficient stake");
+        require(pendingSettlementsCount[msg.sender] == 0, "pending settlements");
+        require(submitterStake[msg.sender] >= amount, "insufficient stake");
 
         submitterStake[msg.sender] -= amount;
+
         (bool ok, ) = msg.sender.call{value: amount}("");
-        require(ok, "unstake: ETH transfer failed");
+        require(ok, "ETH transfer failed");
 
         emit SubmitterUnstaked(msg.sender, amount);
     }
 
-    // ----------------- INTERNAL HELPERS (EIP-712) -----------------
+    /*//////////////////////////////////////////////////////////////
+                        EIP-712 UTILS
+    //////////////////////////////////////////////////////////////*/
 
-    function _hashUserIntent(
-        address party,
-        uint256 nonce,
-        uint256 expiry,
-        uint256 epochId,
-        bytes32 settlementHash
-    ) internal view returns (bytes32) {
+    function _hashIntent(SignedIntent memory it, bytes32 settlementHash)
+        internal
+        view
+        returns (bytes32)
+    {
         bytes32 structHash = keccak256(
             abi.encode(
                 USER_INTENT_TYPEHASH,
-                party,
-                nonce,
-                expiry,
-                epochId,
-                settlementHash
+                it.party,
+                it.nonce,
+                it.expiry,
+                it.epochId,
+                settlementHash,
+                it.feeToken,
+                it.feeAmount
             )
         );
         return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
     }
 
-    function _recoverSigner(bytes32 digest, bytes memory signature) internal pure returns (address) {
-        require(signature.length == 65, "bad sig length");
+    function _recover(bytes32 digest, bytes memory sig)
+        internal
+        pure
+        returns (address)
+    {
+        require(sig.length == 65, "bad sig length");
         bytes32 r;
         bytes32 s;
         uint8 v;
-        // solhint-disable-next-line no-inline-assembly
         assembly {
-            r := mload(add(signature, 32))
-            s := mload(add(signature, 64))
-            v := byte(0, mload(add(signature, 96)))
+            r := mload(add(sig, 32))
+            s := mload(add(sig, 64))
+            v := byte(0, mload(add(sig, 96)))
         }
         if (v < 27) v += 27;
         require(v == 27 || v == 28, "bad v");
         address signer = ecrecover(digest, v, r, s);
-        require(signer != address(0), "ecrecover failed");
+        require(signer != address(0), "ecrecover fail");
         return signer;
     }
 
-    function _verifyIntent(SignedIntent memory intent, bytes32 settlementHash)
+    /*//////////////////////////////////////////////////////////////
+                        FAIRNESS CHECK
+    //////////////////////////////////////////////////////////////*/
+
+    function _checkFairness(uint256 epochId, AssetTransfer[] calldata transfers)
         internal
         view
-        returns (address signer)
     {
-        bytes32 digest = _hashUserIntent(
-            intent.party,
-            intent.nonce,
-            intent.expiry,
-            intent.epochId,
-            settlementHash
-        );
-        signer = _recoverSigner(digest, intent.signature);
+        // gather unique ERC20 tokens
+        address[] memory tokensTmp = new address[](transfers.length);
+        uint256 tokCount = 0;
+
+        for (uint256 i = 0; i < transfers.length; i++) {
+            if (transfers[i].isERC721) continue;
+            address tk = transfers[i].token;
+
+            bool found = false;
+            for (uint256 j = 0; j < tokCount; j++) {
+                if (tokensTmp[j] == tk) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                tokensTmp[tokCount++] = tk;
+            }
+        }
+
+        address[] memory tokens = new address[](tokCount);
+        uint256[] memory prices = new uint256[](tokCount);
+
+        // load oracle prices
+        for (uint256 i = 0; i < tokCount; i++) {
+            tokens[i] = tokensTmp[i];
+            (uint256 p, uint256 ts) = oracleHub.getPrice(epochId, tokens[i]);
+            require(ts != 0, "fairness: no price");
+            require(block.timestamp - ts <= maxSnapshotAge, "fairness: stale snapshot");
+            prices[i] = p;
+        }
+
+        // unique parties
+        address[] memory partiesTmp = new address[](transfers.length * 2);
+        uint256 pCount = 0;
+
+        for (uint256 i = 0; i < transfers.length; i++) {
+            AssetTransfer calldata t = transfers[i];
+
+            bool f = false;
+            for (uint256 j = 0; j < pCount; j++) if (partiesTmp[j] == t.from) f = true;
+            if (!f) partiesTmp[pCount++] = t.from;
+
+            f = false;
+            for (uint256 j = 0; j < pCount; j++) if (partiesTmp[j] == t.to) f = true;
+            if (!f) partiesTmp[pCount++] = t.to;
+        }
+
+        address[] memory parties = new address[](pCount);
+        uint256[] memory valueGiven = new uint256[](pCount);
+        uint256[] memory valueReceived = new uint256[](pCount);
+
+        for (uint256 i = 0; i < pCount; i++) parties[i] = partiesTmp[i];
+
+        // calculate value flows
+        for (uint256 i = 0; i < transfers.length; i++) {
+            AssetTransfer calldata t = transfers[i];
+            if (t.isERC721) continue;
+
+            uint256 price = 0;
+            for (uint256 j = 0; j < tokCount; j++) {
+                if (tokens[j] == t.token) price = prices[j];
+            }
+            require(price > 0, "fairness: zero price");
+
+            uint256 value = price * t.amount;
+
+            uint256 fromI = _find(parties, t.from);
+            uint256 toI   = _find(parties, t.to);
+
+            valueGiven[fromI] += value;
+            valueReceived[toI] += value;
+        }
+
+        // enforce fairness
+        if (maxFairnessRatioBps > 0) {
+            for (uint256 i = 0; i < pCount; i++) {
+                if (valueGiven[i] == 0) continue;
+                require(
+                    valueReceived[i] * 10000 <= valueGiven[i] * maxFairnessRatioBps,
+                    "fairness: ratio exceeded"
+                );
+            }
+        }
     }
 
-    // ----------------- CORE: SUBMIT -----------------
+    function _find(address[] memory arr, address a) internal pure returns (uint256) {
+        for (uint256 i = 0; i < arr.length; i++)
+            if (arr[i] == a) return i;
+        revert("party not found");
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        PUBLIC HELPER
+    //////////////////////////////////////////////////////////////*/
+
+    function computeSettlementHash(uint256 epochId, AssetTransfer[] calldata transfers)
+        external
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encode(epochId, transfers));
+    }
+
+    /*//////////////////////////////////////////////////////////////
+                        SUBMIT SETTLEMENT
+    //////////////////////////////////////////////////////////////*/
 
     function submitSettlement(
         uint256 epochId,
         AssetTransfer[] calldata transfers,
         SignedIntent[] calldata intents
     ) external returns (uint256 settlementId) {
-        // require submitter has enough stake
-        require(submitterStake[msg.sender] >= minSubmitterStake, "submit: insufficient stake");
 
-        // epoch check (using OracleHub just as an epoch source in v0)
+        require(submitterStake[msg.sender] >= minSubmitterStake, "submit: insufficient stake");
         require(epochId == oracleHub.currentEpoch(), "submit: wrong epoch");
 
-        // compute settlementHash
         bytes32 settlementHash = keccak256(abi.encode(epochId, transfers));
 
-        // verify intents
+        // verify intents and lock fees
+        uint256 totalFees = 0;
+
+        settlementId = ++nextSettlementId;
+        SettlementRecord storage rec = settlements[settlementId];
+        rec.status = SettlementStatus.Pending;
+        rec.epochId = epochId;
+        rec.commitBlock = block.number;
+        rec.submitter = msg.sender;
+        rec.settlementHash = settlementHash;
+
+        pendingSettlementsCount[msg.sender]++;
+
+        // verify signatures + lock fee amounts
         for (uint256 i = 0; i < intents.length; i++) {
-            SignedIntent calldata it = intents[i];
-            address signer = _verifyIntent(it, settlementHash);
+            SignedIntent memory it = intents[i];
+
+            bytes32 digest = _hashIntent(it, settlementHash);
+            address signer = _recover(digest, it.signature);
+
             require(signer == it.party, "submit: bad sig");
             require(it.epochId == epochId, "submit: epoch mismatch");
             require(block.timestamp <= it.expiry, "submit: expired");
             require(!nonceUsed[it.party][it.nonce], "submit: nonce used");
             require(it.settlementHash == settlementHash, "submit: hash mismatch");
+
             nonceUsed[it.party][it.nonce] = true;
+
+            // Fee locking
+            require(it.feeToken != address(0), "submit: feeToken zero");
+            require(it.feeAmount > 0, "submit: feeAmount zero");
+
+            vault.lock(it.feeToken, it.party, it.feeAmount, settlementId);
+
+            rec.feeLocks.push(FeeLock({
+                party: it.party,
+                token: it.feeToken,
+                amount: it.feeAmount
+            }));
+
+            totalFees += it.feeAmount;
         }
 
-        // create record & lock assets
-        settlementId = nextSettlementId++;
-        SettlementRecord storage rec = settlements[settlementId];
-        rec.status = SettlementStatus.Pending;
-        rec.epochId = epochId;
-        rec.commitBlock = block.number;
-        rec.settlementHash = settlementHash;
-        rec.submitter = msg.sender;
+        require(totalFees > 0, "submit: no fees in intents");
 
-        pendingSettlementsCount[msg.sender] += 1;
+        // fair price check
+        _checkFairness(epochId, transfers);
 
-        bool hasFeeTransfer = false;
-
+        // lock transfers
         for (uint256 j = 0; j < transfers.length; j++) {
             AssetTransfer calldata t = transfers[j];
             rec.transfers.push(t);
 
             if (t.isERC721) {
-                // NFT must already be deposited in NFTVault by 'from'
                 require(nftVault.ownerOf(t.token, t.tokenId) == t.from, "submit: NFT not in vault");
                 nftVault.reserveForSettlement(t.token, t.tokenId, settlementId);
             } else {
-                // Lock ERC-20 inside Vault
                 vault.lock(t.token, t.from, t.amount, settlementId);
-
-                // Consider any ERC-20 transfer to the submitter as fee
-                if (t.to == msg.sender && t.amount > 0) {
-                    hasFeeTransfer = true;
-                }
             }
         }
-
-        // enforce that submitter gets at least some ERC-20 as fee
-        require(hasFeeTransfer, "submit: no fee for submitter");
 
         emit SettlementPending(settlementId, epochId, settlementHash, msg.sender);
     }
 
-    // ----------------- FINALIZE -----------------
+    /*//////////////////////////////////////////////////////////////
+                        FINALIZE
+    //////////////////////////////////////////////////////////////*/
 
     function finalizeSettlement(uint256 settlementId) external {
         SettlementRecord storage rec = settlements[settlementId];
-        require(rec.status == SettlementStatus.Pending, "finalize: not pending");
-        require(block.number > rec.commitBlock + challengeWindowBlocks, "finalize: challenge window");
+        require(rec.status == SettlementStatus.Pending, "not pending");
+        require(block.number > rec.commitBlock + challengeWindowBlocks, "challenge window");
 
+        // transfers
         for (uint256 j = 0; j < rec.transfers.length; j++) {
             AssetTransfer storage t = rec.transfers[j];
+
             if (t.isERC721) {
-                // keep NFT in vault; change logical owner
                 nftVault.finalizeForSettlement(t.token, t.tokenId, t.to, settlementId);
             } else {
                 vault.transferLocked(t.token, t.from, t.to, t.amount, settlementId);
             }
         }
 
+        // submitter receives fees
+        for (uint256 k = 0; k < rec.feeLocks.length; k++) {
+            FeeLock storage f = rec.feeLocks[k];
+            vault.transferLocked(f.token, f.party, rec.submitter, f.amount, settlementId);
+        }
+
         rec.status = SettlementStatus.Finalized;
-        pendingSettlementsCount[rec.submitter] -= 1;
+        pendingSettlementsCount[rec.submitter]--;
 
         emit SettlementFinalized(settlementId);
     }
 
-    // ----------------- CHALLENGE + SLASH -----------------
+    /*//////////////////////////////////////////////////////////////
+                        CHALLENGE
+    //////////////////////////////////////////////////////////////*/
 
-    /// @notice In v0, any call during the challenge window invalidates the settlement.
-    /// Later, we will add oracle-based checks here.
     function challengeSettlement(uint256 settlementId) external {
         SettlementRecord storage rec = settlements[settlementId];
-        require(rec.status == SettlementStatus.Pending, "challenge: not pending");
-        require(block.number <= rec.commitBlock + challengeWindowBlocks, "challenge: too late");
+        require(rec.status == SettlementStatus.Pending, "not pending");
+        require(block.number <= rec.commitBlock + challengeWindowBlocks, "window passed");
 
-        // rollback: unlock assets and clear NFT reservations
+        // rollback: unlock transfers
         for (uint256 j = 0; j < rec.transfers.length; j++) {
             AssetTransfer storage t = rec.transfers[j];
             if (t.isERC721) {
@@ -301,29 +455,34 @@ contract SettlementManager {
             }
         }
 
+        // rollback fees
+        for (uint256 k = 0; k < rec.feeLocks.length; k++) {
+            FeeLock storage f = rec.feeLocks[k];
+            vault.unlock(f.token, f.party, f.amount, settlementId);
+        }
+
         rec.status = SettlementStatus.Invalid;
-        pendingSettlementsCount[rec.submitter] -= 1;
+        pendingSettlementsCount[rec.submitter]--;
 
         // slash submitter
-        address submitter = rec.submitter;
-        uint256 staked = submitterStake[submitter];
+        address sub = rec.submitter;
+        uint256 staked = submitterStake[sub];
         uint256 penalty = slashAmount <= staked ? slashAmount : staked;
 
         if (penalty > 0) {
-            uint256 reward = penalty / 2; // 50% to challenger, 50% stays in contract
-            submitterStake[submitter] -= penalty;
+            uint256 reward = penalty / 2;
+            submitterStake[sub] -= penalty;
 
             if (reward > 0) {
                 (bool ok, ) = msg.sender.call{value: reward}("");
-                require(ok, "challenge: reward transfer failed");
+                require(ok, "reward transfer failed");
             }
 
-            emit SubmitterSlashed(submitter, penalty, msg.sender, reward);
+            emit SubmitterSlashed(sub, penalty, msg.sender, reward);
         }
 
         emit SettlementInvalidated(settlementId, msg.sender);
     }
 
-    // allow contract to receive ETH (for staking) directly if needed
     receive() external payable {}
 }

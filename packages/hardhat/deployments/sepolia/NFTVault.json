@@ -1,0 +1,347 @@
+{
+  "address": "0xC81C92dE097Ce8a6f088CA7D9e34B2bdBDc9656C",
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "settlementId",
+          "type": "uint256"
+        }
+      ],
+      "name": "cancelReservation",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "settlementId",
+          "type": "uint256"
+        }
+      ],
+      "name": "finalizeForSettlement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "onERC721Received",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "",
+          "type": "bytes4"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "ownerOf",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "settlementId",
+          "type": "uint256"
+        }
+      ],
+      "name": "reserveForSettlement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "reservedForSettlement",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_settlementManager",
+          "type": "address"
+        }
+      ],
+      "name": "setSettlementManager",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "settlementManager",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x163277ace13d307e59404ade048362dde1521fe04ba99de46888f3112f947c66",
+  "receipt": {
+    "to": null,
+    "from": "0x04a39E9046950be710EAFe6EDB90E11a010C4072",
+    "contractAddress": "0xC81C92dE097Ce8a6f088CA7D9e34B2bdBDc9656C",
+    "transactionIndex": 27,
+    "gasUsed": "586448",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0xd7ab5f3ff26173df404922d6a44fe1b858072c273868b02e82f8ac48295d05b9",
+    "transactionHash": "0x163277ace13d307e59404ade048362dde1521fe04ba99de46888f3112f947c66",
+    "logs": [],
+    "blockNumber": 9777422,
+    "cumulativeGasUsed": "6556303",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "2d841cffb3838bc21cb2e0a4565186dc",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"settlementId\",\"type\":\"uint256\"}],\"name\":\"cancelReservation\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"deposit\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"settlementId\",\"type\":\"uint256\"}],\"name\":\"finalizeForSettlement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"onERC721Received\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"\",\"type\":\"bytes4\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"ownerOf\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"settlementId\",\"type\":\"uint256\"}],\"name\":\"reserveForSettlement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"reservedForSettlement\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_settlementManager\",\"type\":\"address\"}],\"name\":\"setSettlementManager\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"settlementManager\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"name\":\"withdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"cancelReservation(address,uint256,uint256)\":{\"notice\":\"Rollback: cancel reservation, keep original owner.\"},\"deposit(address,uint256)\":{\"notice\":\"Deposit an NFT into the vault. Caller must have approved NFTVault.\"},\"finalizeForSettlement(address,uint256,address,uint256)\":{\"notice\":\"Finalize: change logical owner, keep NFT in vault.\"},\"onERC721Received(address,address,uint256,bytes)\":{\"notice\":\"Allow this contract to receive ERC-721 via safeTransferFrom\"},\"reserveForSettlement(address,uint256,uint256)\":{\"notice\":\"Reserve this NFT for a given settlementId (called on submit).\"},\"withdraw(address,uint256)\":{\"notice\":\"Withdraw an NFT from the vault. Fails if the NFT is reserved in a pending settlement.\"}},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/NFTVault.sol\":\"NFTVault\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/token/ERC721/IERC721.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/IERC721.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {IERC165} from \\\"../../utils/introspection/IERC165.sol\\\";\\n\\n/**\\n * @dev Required interface of an ERC721 compliant contract.\\n */\\ninterface IERC721 is IERC165 {\\n    /**\\n     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);\\n\\n    /**\\n     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.\\n     */\\n    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);\\n\\n    /**\\n     * @dev Emitted when `owner` enables or disables (`approved`) `operator` to manage all of its assets.\\n     */\\n    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);\\n\\n    /**\\n     * @dev Returns the number of tokens in ``owner``'s account.\\n     */\\n    function balanceOf(address owner) external view returns (uint256 balance);\\n\\n    /**\\n     * @dev Returns the owner of the `tokenId` token.\\n     *\\n     * Requirements:\\n     *\\n     * - `tokenId` must exist.\\n     */\\n    function ownerOf(uint256 tokenId) external view returns (address owner);\\n\\n    /**\\n     * @dev Safely transfers `tokenId` token from `from` to `to`.\\n     *\\n     * Requirements:\\n     *\\n     * - `from` cannot be the zero address.\\n     * - `to` cannot be the zero address.\\n     * - `tokenId` token must exist and be owned by `from`.\\n     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.\\n     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon\\n     *   a safe transfer.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external;\\n\\n    /**\\n     * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients\\n     * are aware of the ERC721 protocol to prevent tokens from being forever locked.\\n     *\\n     * Requirements:\\n     *\\n     * - `from` cannot be the zero address.\\n     * - `to` cannot be the zero address.\\n     * - `tokenId` token must exist and be owned by `from`.\\n     * - If the caller is not `from`, it must have been allowed to move this token by either {approve} or\\n     *   {setApprovalForAll}.\\n     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon\\n     *   a safe transfer.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function safeTransferFrom(address from, address to, uint256 tokenId) external;\\n\\n    /**\\n     * @dev Transfers `tokenId` token from `from` to `to`.\\n     *\\n     * WARNING: Note that the caller is responsible to confirm that the recipient is capable of receiving ERC721\\n     * or else they may be permanently lost. Usage of {safeTransferFrom} prevents loss, though the caller must\\n     * understand this adds an external call which potentially creates a reentrancy vulnerability.\\n     *\\n     * Requirements:\\n     *\\n     * - `from` cannot be the zero address.\\n     * - `to` cannot be the zero address.\\n     * - `tokenId` token must be owned by `from`.\\n     * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 tokenId) external;\\n\\n    /**\\n     * @dev Gives permission to `to` to transfer `tokenId` token to another account.\\n     * The approval is cleared when the token is transferred.\\n     *\\n     * Only a single account can be approved at a time, so approving the zero address clears previous approvals.\\n     *\\n     * Requirements:\\n     *\\n     * - The caller must own the token or be an approved operator.\\n     * - `tokenId` must exist.\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address to, uint256 tokenId) external;\\n\\n    /**\\n     * @dev Approve or remove `operator` as an operator for the caller.\\n     * Operators can call {transferFrom} or {safeTransferFrom} for any token owned by the caller.\\n     *\\n     * Requirements:\\n     *\\n     * - The `operator` cannot be the address zero.\\n     *\\n     * Emits an {ApprovalForAll} event.\\n     */\\n    function setApprovalForAll(address operator, bool approved) external;\\n\\n    /**\\n     * @dev Returns the account approved for `tokenId` token.\\n     *\\n     * Requirements:\\n     *\\n     * - `tokenId` must exist.\\n     */\\n    function getApproved(uint256 tokenId) external view returns (address operator);\\n\\n    /**\\n     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.\\n     *\\n     * See {setApprovalForAll}\\n     */\\n    function isApprovedForAll(address owner, address operator) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x5ef46daa3b58ef2702279d514780316efaa952915ee1aa3396f041ee2982b0b4\",\"license\":\"MIT\"},\"@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC721/IERC721Receiver.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @title ERC721 token receiver interface\\n * @dev Interface for any contract that wants to support safeTransfers\\n * from ERC721 asset contracts.\\n */\\ninterface IERC721Receiver {\\n    /**\\n     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}\\n     * by `operator` from `from`, this function is called.\\n     *\\n     * It must return its Solidity selector to confirm the token transfer.\\n     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be\\n     * reverted.\\n     *\\n     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.\\n     */\\n    function onERC721Received(\\n        address operator,\\n        address from,\\n        uint256 tokenId,\\n        bytes calldata data\\n    ) external returns (bytes4);\\n}\\n\",\"keccak256\":\"0x7f7a26306c79a65fb8b3b6c757cd74660c532cd8a02e165488e30027dd34ca49\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/IERC165.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Interface of the ERC165 standard, as defined in the\\n * https://eips.ethereum.org/EIPS/eip-165[EIP].\\n *\\n * Implementers can declare support of contract interfaces, which can then be\\n * queried by others ({ERC165Checker}).\\n *\\n * For an implementation, see {ERC165}.\\n */\\ninterface IERC165 {\\n    /**\\n     * @dev Returns true if this contract implements the interface defined by\\n     * `interfaceId`. See the corresponding\\n     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]\\n     * to learn more about how these ids are created.\\n     *\\n     * This function call must use less than 30 000 gas.\\n     */\\n    function supportsInterface(bytes4 interfaceId) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x4296879f55019b23e135000eb36896057e7101fb7fb859c5ef690cf14643757b\",\"license\":\"MIT\"},\"contracts/NFTVault.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\nimport { IERC721 } from \\\"@openzeppelin/contracts/token/ERC721/IERC721.sol\\\";\\nimport { IERC721Receiver } from \\\"@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol\\\";\\n\\ncontract NFTVault is IERC721Receiver {\\n    // token => tokenId => logical owner inside vault\\n    mapping(address => mapping(uint256 => address)) public ownerOf;\\n\\n    // token => tokenId => reserved settlementId (0 = free)\\n    mapping(address => mapping(uint256 => uint256)) public reservedForSettlement;\\n\\n    address public settlementManager;\\n\\n    modifier onlySettlementManager() {\\n        require(msg.sender == settlementManager, \\\"NFTVault: not settlement manager\\\");\\n        _;\\n    }\\n\\n    constructor() {\\n        settlementManager = msg.sender; // will be updated via setSettlementManager\\n    }\\n\\n    function setSettlementManager(address _settlementManager) external {\\n        require(msg.sender == settlementManager, \\\"NFTVault: not allowed\\\");\\n        settlementManager = _settlementManager;\\n    }\\n\\n    /// @notice Deposit an NFT into the vault. Caller must have approved NFTVault.\\n    function deposit(address token, uint256 tokenId) external {\\n        IERC721(token).safeTransferFrom(msg.sender, address(this), tokenId);\\n        ownerOf[token][tokenId] = msg.sender;\\n        // not reserved yet\\n        reservedForSettlement[token][tokenId] = 0;\\n    }\\n\\n    /// @notice Withdraw an NFT from the vault.\\n    /// Fails if the NFT is reserved in a pending settlement.\\n    function withdraw(address token, uint256 tokenId) external {\\n        require(ownerOf[token][tokenId] == msg.sender, \\\"NFTVault: not owner\\\");\\n        require(reservedForSettlement[token][tokenId] == 0, \\\"NFTVault: locked in settlement\\\");\\n\\n        ownerOf[token][tokenId] = address(0);\\n        IERC721(token).safeTransferFrom(address(this), msg.sender, tokenId);\\n    }\\n\\n    /// @notice Reserve this NFT for a given settlementId (called on submit).\\n    function reserveForSettlement(address token, uint256 tokenId, uint256 settlementId)\\n        external\\n        onlySettlementManager\\n    {\\n        require(ownerOf[token][tokenId] != address(0), \\\"NFTVault: not deposited\\\");\\n        require(reservedForSettlement[token][tokenId] == 0, \\\"NFTVault: already reserved\\\");\\n        reservedForSettlement[token][tokenId] = settlementId;\\n    }\\n\\n    /// @notice Finalize: change logical owner, keep NFT in vault.\\n    function finalizeForSettlement(\\n        address token,\\n        uint256 tokenId,\\n        address to,\\n        uint256 settlementId\\n    ) external onlySettlementManager {\\n        require(reservedForSettlement[token][tokenId] == settlementId, \\\"NFTVault: wrong settlement\\\");\\n        // old owner is ownerOf[token][tokenId], we just overwrite\\n        reservedForSettlement[token][tokenId] = 0;\\n        ownerOf[token][tokenId] = to;\\n    }\\n\\n    /// @notice Rollback: cancel reservation, keep original owner.\\n    function cancelReservation(\\n        address token,\\n        uint256 tokenId,\\n        uint256 settlementId\\n    ) external onlySettlementManager {\\n        require(reservedForSettlement[token][tokenId] == settlementId, \\\"NFTVault: wrong settlement\\\");\\n        reservedForSettlement[token][tokenId] = 0;\\n        // ownerOf stays as original owner\\n    }\\n\\n    /// @notice Allow this contract to receive ERC-721 via safeTransferFrom\\n    function onERC721Received(\\n        address,\\n        address,\\n        uint256,\\n        bytes calldata\\n    ) external pure override returns (bytes4) {\\n        return IERC721Receiver.onERC721Received.selector;\\n    }\\n}\",\"keccak256\":\"0x2559ba993ec27f62e5a43893c3351ff2875ed245850d2be0ca6d0b9e894082fe\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600280546001600160a01b0319163317905561093e806100326000396000f3fe608060405234801561001057600080fd5b506004361061009e5760003560e01c80635dbdcdad116100665780635dbdcdad14610164578063613bd07e1461017757806374121583146101b0578063a6fc3991146101c3578063f3fef3a3146101d657600080fd5b80630556df0f146100a3578063150b7a02146100b85780631f29d2dc146100f557806347e7ef241461013e5780634d26cc5114610151575b600080fd5b6100b66100b1366004610775565b6101e9565b005b6100d76100c6366004610797565b630a85bd0160e11b95945050505050565b6040516001600160e01b031990911681526020015b60405180910390f35b610126610103366004610832565b60006020818152928152604080822090935290815220546001600160a01b031681565b6040516001600160a01b0390911681526020016100ec565b6100b661014c366004610832565b610262565b6100b661015f36600461085c565b610310565b600254610126906001600160a01b031681565b6101a2610185366004610832565b600160209081526000928352604080842090915290825290205481565b6040519081526020016100ec565b6100b66101be36600461088f565b610441565b6100b66101d136600461085c565b61052d565b6100b66101e4366004610832565b6105f2565b6002546001600160a01b031633146102405760405162461bcd60e51b815260206004820152601560248201527413919515985d5b1d0e881b9bdd08185b1b1bddd959605a1b60448201526064015b60405180910390fd5b600280546001600160a01b0319166001600160a01b0392909216919091179055565b604051632142170760e11b8152336004820152306024820152604481018290526001600160a01b038316906342842e0e90606401600060405180830381600087803b1580156102b057600080fd5b505af11580156102c4573d6000803e3d6000fd5b5050506001600160a01b03909216600081815260208181526040808320858452825280832080546001600160a01b03191633179055928252600181528282209382529290925281205550565b6002546001600160a01b0316331461033a5760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b03838116600090815260208181526040808320868452909152902054166103aa5760405162461bcd60e51b815260206004820152601760248201527f4e46545661756c743a206e6f74206465706f73697465640000000000000000006044820152606401610237565b6001600160a01b03831660009081526001602090815260408083208584529091529020541561041b5760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a20616c72656164792072657365727665640000000000006044820152606401610237565b6001600160a01b0390921660009081526001602090815260408083209383529290522055565b6002546001600160a01b0316331461046b5760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b038416600090815260016020908152604080832086845290915290205481146104dd5760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a2077726f6e6720736574746c656d656e740000000000006044820152606401610237565b506001600160a01b03928316600081815260016020908152604080832086845282528083208390559282528181528282209482529390935290912080546001600160a01b03191691909216179055565b6002546001600160a01b031633146105575760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b038316600090815260016020908152604080832085845290915290205481146105c95760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a2077726f6e6720736574746c656d656e740000000000006044820152606401610237565b506001600160a01b03909116600090815260016020908152604080832093835292905290812055565b6001600160a01b0382811660009081526020818152604080832085845290915290205416331461065a5760405162461bcd60e51b815260206004820152601360248201527227232a2b30bab63a1d103737ba1037bbb732b960691b6044820152606401610237565b6001600160a01b0382166000908152600160209081526040808320848452909152902054156106cb5760405162461bcd60e51b815260206004820152601e60248201527f4e46545661756c743a206c6f636b656420696e20736574746c656d656e7400006044820152606401610237565b6001600160a01b0382166000818152602081815260408083208584529091529081902080546001600160a01b031916905551632142170760e11b8152306004820152336024820152604481018390526342842e0e90606401600060405180830381600087803b15801561073d57600080fd5b505af1158015610751573d6000803e3d6000fd5b505050505050565b80356001600160a01b038116811461077057600080fd5b919050565b60006020828403121561078757600080fd5b61079082610759565b9392505050565b6000806000806000608086880312156107af57600080fd5b6107b886610759565b94506107c660208701610759565b935060408601359250606086013567ffffffffffffffff808211156107ea57600080fd5b818801915088601f8301126107fe57600080fd5b81358181111561080d57600080fd5b89602082850101111561081f57600080fd5b9699959850939650602001949392505050565b6000806040838503121561084557600080fd5b61084e83610759565b946020939093013593505050565b60008060006060848603121561087157600080fd5b61087a84610759565b95602085013595506040909401359392505050565b600080600080608085870312156108a557600080fd5b6108ae85610759565b9350602085013592506108c360408601610759565b9396929550929360600135925050565b6020808252818101527f4e46545661756c743a206e6f7420736574746c656d656e74206d616e6167657260408201526060019056fea2646970667358221220b5cd986d1c94507d022ff608c2d8fac8c05e8357591a56f83a39a1f08bac713464736f6c63430008140033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061009e5760003560e01c80635dbdcdad116100665780635dbdcdad14610164578063613bd07e1461017757806374121583146101b0578063a6fc3991146101c3578063f3fef3a3146101d657600080fd5b80630556df0f146100a3578063150b7a02146100b85780631f29d2dc146100f557806347e7ef241461013e5780634d26cc5114610151575b600080fd5b6100b66100b1366004610775565b6101e9565b005b6100d76100c6366004610797565b630a85bd0160e11b95945050505050565b6040516001600160e01b031990911681526020015b60405180910390f35b610126610103366004610832565b60006020818152928152604080822090935290815220546001600160a01b031681565b6040516001600160a01b0390911681526020016100ec565b6100b661014c366004610832565b610262565b6100b661015f36600461085c565b610310565b600254610126906001600160a01b031681565b6101a2610185366004610832565b600160209081526000928352604080842090915290825290205481565b6040519081526020016100ec565b6100b66101be36600461088f565b610441565b6100b66101d136600461085c565b61052d565b6100b66101e4366004610832565b6105f2565b6002546001600160a01b031633146102405760405162461bcd60e51b815260206004820152601560248201527413919515985d5b1d0e881b9bdd08185b1b1bddd959605a1b60448201526064015b60405180910390fd5b600280546001600160a01b0319166001600160a01b0392909216919091179055565b604051632142170760e11b8152336004820152306024820152604481018290526001600160a01b038316906342842e0e90606401600060405180830381600087803b1580156102b057600080fd5b505af11580156102c4573d6000803e3d6000fd5b5050506001600160a01b03909216600081815260208181526040808320858452825280832080546001600160a01b03191633179055928252600181528282209382529290925281205550565b6002546001600160a01b0316331461033a5760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b03838116600090815260208181526040808320868452909152902054166103aa5760405162461bcd60e51b815260206004820152601760248201527f4e46545661756c743a206e6f74206465706f73697465640000000000000000006044820152606401610237565b6001600160a01b03831660009081526001602090815260408083208584529091529020541561041b5760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a20616c72656164792072657365727665640000000000006044820152606401610237565b6001600160a01b0390921660009081526001602090815260408083209383529290522055565b6002546001600160a01b0316331461046b5760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b038416600090815260016020908152604080832086845290915290205481146104dd5760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a2077726f6e6720736574746c656d656e740000000000006044820152606401610237565b506001600160a01b03928316600081815260016020908152604080832086845282528083208390559282528181528282209482529390935290912080546001600160a01b03191691909216179055565b6002546001600160a01b031633146105575760405162461bcd60e51b8152600401610237906108d3565b6001600160a01b038316600090815260016020908152604080832085845290915290205481146105c95760405162461bcd60e51b815260206004820152601a60248201527f4e46545661756c743a2077726f6e6720736574746c656d656e740000000000006044820152606401610237565b506001600160a01b03909116600090815260016020908152604080832093835292905290812055565b6001600160a01b0382811660009081526020818152604080832085845290915290205416331461065a5760405162461bcd60e51b815260206004820152601360248201527227232a2b30bab63a1d103737ba1037bbb732b960691b6044820152606401610237565b6001600160a01b0382166000908152600160209081526040808320848452909152902054156106cb5760405162461bcd60e51b815260206004820152601e60248201527f4e46545661756c743a206c6f636b656420696e20736574746c656d656e7400006044820152606401610237565b6001600160a01b0382166000818152602081815260408083208584529091529081902080546001600160a01b031916905551632142170760e11b8152306004820152336024820152604481018390526342842e0e90606401600060405180830381600087803b15801561073d57600080fd5b505af1158015610751573d6000803e3d6000fd5b505050505050565b80356001600160a01b038116811461077057600080fd5b919050565b60006020828403121561078757600080fd5b61079082610759565b9392505050565b6000806000806000608086880312156107af57600080fd5b6107b886610759565b94506107c660208701610759565b935060408601359250606086013567ffffffffffffffff808211156107ea57600080fd5b818801915088601f8301126107fe57600080fd5b81358181111561080d57600080fd5b89602082850101111561081f57600080fd5b9699959850939650602001949392505050565b6000806040838503121561084557600080fd5b61084e83610759565b946020939093013593505050565b60008060006060848603121561087157600080fd5b61087a84610759565b95602085013595506040909401359392505050565b600080600080608085870312156108a557600080fd5b6108ae85610759565b9350602085013592506108c360408601610759565b9396929550929360600135925050565b6020808252818101527f4e46545661756c743a206e6f7420736574746c656d656e74206d616e6167657260408201526060019056fea2646970667358221220b5cd986d1c94507d022ff608c2d8fac8c05e8357591a56f83a39a1f08bac713464736f6c63430008140033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "cancelReservation(address,uint256,uint256)": {
+        "notice": "Rollback: cancel reservation, keep original owner."
+      },
+      "deposit(address,uint256)": {
+        "notice": "Deposit an NFT into the vault. Caller must have approved NFTVault."
+      },
+      "finalizeForSettlement(address,uint256,address,uint256)": {
+        "notice": "Finalize: change logical owner, keep NFT in vault."
+      },
+      "onERC721Received(address,address,uint256,bytes)": {
+        "notice": "Allow this contract to receive ERC-721 via safeTransferFrom"
+      },
+      "reserveForSettlement(address,uint256,uint256)": {
+        "notice": "Reserve this NFT for a given settlementId (called on submit)."
+      },
+      "withdraw(address,uint256)": {
+        "notice": "Withdraw an NFT from the vault. Fails if the NFT is reserved in a pending settlement."
+      }
+    },
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 238,
+        "contract": "contracts/NFTVault.sol:NFTVault",
+        "label": "ownerOf",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_address))"
+      },
+      {
+        "astId": 244,
+        "contract": "contracts/NFTVault.sol:NFTVault",
+        "label": "reservedForSettlement",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_uint256))"
+      },
+      {
+        "astId": 246,
+        "contract": "contracts/NFTVault.sol:NFTVault",
+        "label": "settlementManager",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_mapping(t_address,t_mapping(t_uint256,t_address))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(uint256 => address))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_address)"
+      },
+      "t_mapping(t_address,t_mapping(t_uint256,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(uint256 => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_uint256)"
+      },
+      "t_mapping(t_uint256,t_address)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

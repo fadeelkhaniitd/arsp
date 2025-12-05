@@ -384,6 +384,16 @@ const deployedContracts = {
               name: "_slashAmount",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "_maxSnapshotAge",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_maxFairnessRatioBps",
+              type: "uint256",
+            },
           ],
           stateMutability: "nonpayable",
           type: "constructor",
@@ -457,7 +467,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "submitter",
+              name: "who",
               type: "address",
             },
             {
@@ -467,7 +477,7 @@ const deployedContracts = {
               type: "uint256",
             },
             {
-              indexed: true,
+              indexed: false,
               internalType: "address",
               name: "challenger",
               type: "address",
@@ -488,7 +498,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "submitter",
+              name: "who",
               type: "address",
             },
             {
@@ -507,7 +517,7 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "submitter",
+              name: "who",
               type: "address",
             },
             {
@@ -576,6 +586,62 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
+              name: "epochId",
+              type: "uint256",
+            },
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "token",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "tokenId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isERC721",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct SettlementManager.AssetTransfer[]",
+              name: "transfers",
+              type: "tuple[]",
+            },
+          ],
+          name: "computeSettlementHash",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "settlementId",
               type: "uint256",
             },
@@ -583,6 +649,32 @@ const deployedContracts = {
           name: "finalizeSettlement",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "maxFairnessRatioBps",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "maxSnapshotAge",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -697,7 +789,33 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "_minStake",
+              name: "a",
+              type: "uint256",
+            },
+          ],
+          name: "setMaxFairnessRatioBps",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "a",
+              type: "uint256",
+            },
+          ],
+          name: "setMaxSnapshotAge",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "a",
               type: "uint256",
             },
           ],
@@ -710,7 +828,7 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
-              name: "_slashAmount",
+              name: "a",
               type: "uint256",
             },
           ],
@@ -848,6 +966,16 @@ const deployedContracts = {
                   internalType: "bytes32",
                   name: "settlementHash",
                   type: "bytes32",
+                },
+                {
+                  internalType: "address",
+                  name: "feeToken",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "feeAmount",
+                  type: "uint256",
                 },
                 {
                   internalType: "bytes",
