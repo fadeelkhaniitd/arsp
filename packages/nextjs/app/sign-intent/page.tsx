@@ -6,15 +6,17 @@ import { useAccount, useChainId, usePublicClient, useSignTypedData } from "wagmi
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 type UiTransfer = {
+  token: string;
   from: string;
   to: string;
-  amount: string; // human units (TST)
+  amount: string; // used only for ERC20
+  tokenId: string; // used only for ERC721
+  isERC721: boolean;
 };
 
 type GeneratedBundle = {
   epochId: string;
   settlementHash: string;
-  feeToken: string;
   transfers: {
     token: string;
     from: string;
@@ -42,86 +44,95 @@ export default function SignIntentPage() {
 
   const { data: settlementInfo } = useDeployedContractInfo("SettlementManager");
   const { data: oracleInfo } = useDeployedContractInfo("OracleHub");
-  const { data: testTokenInfo } = useDeployedContractInfo("TestToken");
 
-  const [transfers, setTransfers] = useState<UiTransfer[]>([{ from: "", to: "", amount: "100" }]);
+  const [transfers, setTransfers] = useState<UiTransfer[]>([
+    { token: "", from: "", to: "", amount: "0", tokenId: "0", isERC721: false },
+  ]);
 
-  const [expirySeconds, setExpirySeconds] = useState<string>("3600");
+  const [feeToken, setFeeToken] = useState<string>("");
   const [feeAmountHuman, setFeeAmountHuman] = useState<string>("1");
+  const [expirySeconds, setExpirySeconds] = useState<string>("3600");
+
   const [status, setStatus] = useState<string>("");
   const [bundleJson, setBundleJson] = useState<string>("");
 
-  // counter so nonce stays unique even if user signs rapidly
   const nonceCounterRef = useRef<number>(0);
 
   const settlementAddr = settlementInfo?.address as Address | undefined;
   const settlementAbi = settlementInfo?.abi;
   const oracleAddr = oracleInfo?.address as Address | undefined;
   const oracleAbi = oracleInfo?.abi;
-  const testTokenAddr = testTokenInfo?.address as Address | undefined;
 
-  const ensureReady = () => {
-    if (!settlementAddr || !settlementAbi || !oracleAddr || !oracleAbi || !testTokenAddr) {
-      throw new Error("Contracts not loaded yet.");
+  function ensureReady() {
+    if (!settlementAddr || !settlementAbi || !oracleAddr || !oracleAbi) {
+      throw new Error("Contracts not ready");
     }
-    if (!publicClient) {
-      throw new Error("Public client not available.");
-    }
-    if (!connectedAddress) {
-      throw new Error("Connect a wallet first.");
-    }
-  };
+    if (!publicClient) throw new Error("No public client");
+    if (!connectedAddress) throw new Error("Connect wallet first");
+  }
 
-  const buildTransfersForContract = () => {
-    if (!testTokenAddr) throw new Error("TestToken not loaded.");
-    return transfers.map(t => {
-      if (!t.from || !t.to) throw new Error("Each transfer must include from & to");
-      if (!t.amount || Number(t.amount) <= 0) throw new Error("Transfer amount must be > 0");
+  function addTransferRow() {
+    setTransfers(prev => [...prev, { token: "", from: "", to: "", amount: "0", tokenId: "0", isERC721: false }]);
+  }
 
-      return {
-        token: testTokenAddr,
-        from: t.from as Address,
-        to: t.to as Address,
-        amount: parseEther(t.amount),
-        tokenId: 0n,
-        isERC721: false,
-      };
-    });
-  };
-
-  const addTransferRow = () => {
-    setTransfers(prev => [...prev, { from: "", to: "", amount: "0" }]);
-  };
-
-  const updateTransfer = (idx: number, field: keyof UiTransfer, value: string) => {
+  function updateTransfer(idx: number, field: keyof UiTransfer, v: string | boolean) {
     setTransfers(prev => {
       const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
+      copy[idx] = { ...copy[idx], [field]: v } as UiTransfer;
       return copy;
     });
-  };
+  }
 
-  const removeTransfer = (idx: number) => {
+  function removeTransfer(idx: number) {
     setTransfers(prev => prev.filter((_, i) => i !== idx));
-  };
+  }
 
-  const handleGenerateAndSign = async () => {
+  function buildTransfersForContract() {
+    return transfers.map(t => {
+      if (!t.token) throw new Error("Transfer missing token address");
+      if (!t.from) throw new Error("Transfer missing from");
+      if (!t.to) throw new Error("Transfer missing to");
+
+      if (t.isERC721) {
+        if (!t.tokenId) throw new Error("ERC721 requires tokenId");
+        return {
+          token: t.token as Address,
+          from: t.from as Address,
+          to: t.to as Address,
+          amount: 0n,
+          tokenId: BigInt(t.tokenId),
+          isERC721: true,
+        };
+      } else {
+        if (!t.amount || Number(t.amount) <= 0) throw new Error("ERC20 requires amount > 0");
+        return {
+          token: t.token as Address,
+          from: t.from as Address,
+          to: t.to as Address,
+          amount: parseEther(t.amount),
+          tokenId: 0n,
+          isERC721: false,
+        };
+      }
+    });
+  }
+
+  async function handleGenerateAndSign() {
     try {
-      setStatus("Preparing intent...");
+      setStatus("Preparing…");
       setBundleJson("");
       ensureReady();
 
+      if (!feeToken) throw new Error("Fee token address required");
+
       const transfersForContract = buildTransfersForContract();
 
-      // load epoch
       const epochId = (await publicClient!.readContract({
         address: oracleAddr!,
         abi: oracleAbi!,
         functionName: "currentEpoch",
-        args: [],
       })) as bigint;
 
-      // compute settlementHash
       const settlementHash = (await publicClient!.readContract({
         address: settlementAddr!,
         abi: settlementAbi!,
@@ -129,17 +140,14 @@ export default function SignIntentPage() {
         args: [epochId, transfersForContract],
       })) as `0x${string}`;
 
-      // expiry handling
       const nowSec = Math.floor(Date.now() / 1000);
-      const expiry = BigInt(nowSec + Number(expirySeconds || "3600"));
+      const expiry = BigInt(nowSec + Number(expirySeconds));
 
-      // AUTO NONCE
       const nowMs = Date.now();
       const nonceBig = BigInt(nowMs * 1000 + nonceCounterRef.current);
       nonceCounterRef.current += 1;
 
-      // fee
-      const feeWei = parseEther(feeAmountHuman || "0");
+      const feeWei = parseEther(feeAmountHuman);
       if (feeWei <= 0n) throw new Error("Fee must be > 0");
 
       const domain = {
@@ -167,11 +175,11 @@ export default function SignIntentPage() {
         expiry,
         epochId,
         settlementHash,
-        feeToken: testTokenAddr!,
+        feeToken,
         feeAmount: feeWei,
       };
 
-      setStatus("Signing intent...");
+      setStatus("Signing…");
 
       const signature = await signTypedDataAsync({
         domain,
@@ -180,26 +188,24 @@ export default function SignIntentPage() {
         message,
       });
 
-      // build bundle
       const jsonTransfers = transfersForContract.map(t => ({
         token: t.token,
         from: t.from,
         to: t.to,
         amount: t.amount.toString(),
-        tokenId: "0",
-        isERC721: false,
+        tokenId: t.tokenId.toString(),
+        isERC721: t.isERC721,
       }));
 
       const bundle: GeneratedBundle = {
         epochId: epochId.toString(),
         settlementHash,
-        feeToken: testTokenAddr!,
         transfers: jsonTransfers,
         intent: {
           party: connectedAddress!,
           nonce: nonceBig.toString(),
           expiry: expiry.toString(),
-          feeToken: testTokenAddr!,
+          feeToken,
           feeAmount: feeWei.toString(),
           settlementHash,
           signature,
@@ -207,72 +213,103 @@ export default function SignIntentPage() {
       };
 
       setBundleJson(JSON.stringify(bundle, null, 2));
-      setStatus("Intent signed. Share this JSON publicly.");
+      setStatus("Intent signed! Copy & share.");
     } catch (err: any) {
       console.error(err);
-      setStatus(err?.message || "Error generating intent.");
+      setStatus(err?.message ?? "Error");
     }
-  };
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl mx-auto mt-10 p-6 border rounded-2xl shadow">
+    <div className="flex flex-col gap-6 max-w-3xl mx-auto mt-10 p-6 border rounded-xl">
       <h1 className="text-2xl font-bold">Sign Settlement Intent</h1>
 
       {/* Transfers */}
       <div className="flex flex-col gap-3">
-        <div className="flex justify-between items-center">
-          <span className="font-semibold">Transfers (TestToken)</span>
+        <div className="flex justify-between">
+          <span className="font-semibold">Transfers</span>
           <button className="btn btn-sm btn-outline" onClick={addTransferRow}>
-            + Add row
+            + Add transfer
           </button>
         </div>
 
         {transfers.map((t, idx) => (
-          <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+          <div key={idx} className="p-3 border rounded-xl flex flex-col gap-2">
             <input
-              className="input input-bordered col-span-4"
-              placeholder="from address"
+              className="input input-bordered"
+              placeholder="Token address"
+              value={t.token}
+              onChange={e => updateTransfer(idx, "token", e.target.value)}
+            />
+
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                checked={t.isERC721}
+                onChange={e => updateTransfer(idx, "isERC721", e.target.checked)}
+              />
+              <span>ERC-721?</span>
+            </div>
+
+            <input
+              className="input input-bordered"
+              placeholder="From"
               value={t.from}
               onChange={e => updateTransfer(idx, "from", e.target.value)}
             />
+
             <input
-              className="input input-bordered col-span-4"
-              placeholder="to address"
+              className="input input-bordered"
+              placeholder="To"
               value={t.to}
               onChange={e => updateTransfer(idx, "to", e.target.value)}
             />
-            <input
-              className="input input-bordered col-span-3"
-              placeholder="amount"
-              value={t.amount}
-              onChange={e => updateTransfer(idx, "amount", e.target.value)}
-            />
-            <button className="btn btn-ghost btn-sm col-span-1" onClick={() => removeTransfer(idx)}>
-              ✕
+
+            {!t.isERC721 && (
+              <input
+                className="input input-bordered"
+                placeholder="Amount (ERC20)"
+                value={t.amount}
+                onChange={e => updateTransfer(idx, "amount", e.target.value)}
+              />
+            )}
+
+            {t.isERC721 && (
+              <input
+                className="input input-bordered"
+                placeholder="Token ID (ERC721)"
+                value={t.tokenId}
+                onChange={e => updateTransfer(idx, "tokenId", e.target.value)}
+              />
+            )}
+
+            <button className="btn btn-sm btn-ghost" onClick={() => removeTransfer(idx)}>
+              Remove
             </button>
           </div>
         ))}
       </div>
 
-      {/* Params */}
+      {/* Fee + Expiry */}
       <div className="grid grid-cols-2 gap-4">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Expiry (seconds)</span>
-          <input
-            className="input input-bordered"
-            value={expirySeconds}
-            onChange={e => setExpirySeconds(e.target.value)}
-          />
-        </label>
-
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Fee (TST)</span>
-          <input
-            className="input input-bordered"
-            value={feeAmountHuman}
-            onChange={e => setFeeAmountHuman(e.target.value)}
-          />
-        </label>
+        <input
+          className="input input-bordered"
+          placeholder="Fee token address"
+          value={feeToken}
+          onChange={e => setFeeToken(e.target.value)}
+        />
+        <input
+          className="input input-bordered"
+          placeholder="Fee amount"
+          value={feeAmountHuman}
+          onChange={e => setFeeAmountHuman(e.target.value)}
+        />
+        <input
+          className="input input-bordered"
+          placeholder="Expiry (seconds)"
+          value={expirySeconds}
+          onChange={e => setExpirySeconds(e.target.value)}
+        />
       </div>
 
       <button className="btn btn-primary" disabled={!connectedAddress} onClick={handleGenerateAndSign}>
