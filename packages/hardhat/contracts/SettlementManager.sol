@@ -31,6 +31,7 @@ contract SettlementManager {
         uint256          epochId;
         uint256          commitBlock;
         bytes32          settlementHash;
+        address          submitter;
         AssetTransfer[]  transfers;
     }
 
@@ -40,30 +41,53 @@ contract SettlementManager {
 
     uint256 public challengeWindowBlocks;
 
-    mapping(address => mapping(uint256 => bool)) public nonceUsed;
-    mapping(uint256 => SettlementRecord) public settlements;
-    uint256 public nextSettlementId;
-
-    // --- EIP-712 setup ---
-
+    // EIP-712 domain
     bytes32 public DOMAIN_SEPARATOR;
     bytes32 public constant USER_INTENT_TYPEHASH =
         keccak256("UserIntent(address party,uint256 nonce,uint256 expiry,uint256 epochId,bytes32 settlementHash)");
 
-    event SettlementPending(uint256 indexed id, uint256 epochId, bytes32 hash);
+    // Nonces and settlements
+    mapping(address => mapping(uint256 => bool)) public nonceUsed;
+    mapping(uint256 => SettlementRecord) public settlements;
+    uint256 public nextSettlementId;
+
+    // --- submitter staking & slashing ---
+
+    address public owner;
+    mapping(address => uint256) public submitterStake;           // submitter => ETH stake
+    mapping(address => uint256) public pendingSettlementsCount;  // submitter => number of pending settlements
+
+    uint256 public minSubmitterStake;  // minimum stake required to submit
+    uint256 public slashAmount;        // amount of stake to slash on invalidation (in wei)
+
+    event SettlementPending(uint256 indexed id, uint256 epochId, bytes32 hash, address submitter);
     event SettlementFinalized(uint256 indexed id);
     event SettlementInvalidated(uint256 indexed id, address challenger);
+    event SubmitterStaked(address indexed submitter, uint256 amount);
+    event SubmitterUnstaked(address indexed submitter, uint256 amount);
+    event SubmitterSlashed(address indexed submitter, uint256 amount, address indexed challenger, uint256 reward);
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "SettlementManager: not owner");
+        _;
+    }
 
     constructor(
         address _vault,
         address _nftVault,
         address _oracleHub,
-        uint256 _challengeWindowBlocks
+        uint256 _challengeWindowBlocks,
+        uint256 _minSubmitterStake,
+        uint256 _slashAmount
     ) {
         vault = Vault(_vault);
         nftVault = NFTVault(_nftVault);
         oracleHub = OracleHub(_oracleHub);
         challengeWindowBlocks = _challengeWindowBlocks;
+
+        owner = msg.sender;
+        minSubmitterStake = _minSubmitterStake;
+        slashAmount = _slashAmount;
 
         uint256 chainId;
         assembly {
@@ -83,7 +107,38 @@ contract SettlementManager {
         );
     }
 
-    // ----------------- INTERNAL HELPERS -----------------
+    // ----------------- OWNER CONFIG -----------------
+
+    function setMinSubmitterStake(uint256 _minStake) external onlyOwner {
+        minSubmitterStake = _minStake;
+    }
+
+    function setSlashAmount(uint256 _slashAmount) external onlyOwner {
+        slashAmount = _slashAmount;
+    }
+
+    // ----------------- SUBMITTER STAKING -----------------
+
+    /// @notice Stake ETH to become a submitter.
+    function stake() external payable {
+        require(msg.value > 0, "stake: no value");
+        submitterStake[msg.sender] += msg.value;
+        emit SubmitterStaked(msg.sender, msg.value);
+    }
+
+    /// @notice Unstake ETH. You must have no pending settlements.
+    function unstake(uint256 amount) external {
+        require(pendingSettlementsCount[msg.sender] == 0, "unstake: pending settlements");
+        require(submitterStake[msg.sender] >= amount, "unstake: insufficient stake");
+
+        submitterStake[msg.sender] -= amount;
+        (bool ok, ) = msg.sender.call{value: amount}("");
+        require(ok, "unstake: ETH transfer failed");
+
+        emit SubmitterUnstaked(msg.sender, amount);
+    }
+
+    // ----------------- INTERNAL HELPERS (EIP-712) -----------------
 
     function _hashUserIntent(
         address party,
@@ -145,31 +200,39 @@ contract SettlementManager {
         AssetTransfer[] calldata transfers,
         SignedIntent[] calldata intents
     ) external returns (uint256 settlementId) {
-        // For v0, we only check that the provided epoch matches currentEpoch
-        require(epochId == oracleHub.currentEpoch(), "wrong epoch");
+        // require submitter has enough stake
+        require(submitterStake[msg.sender] >= minSubmitterStake, "submit: insufficient stake");
 
-        // 1. Compute settlementHash
+        // epoch check (using OracleHub just as an epoch source in v0)
+        require(epochId == oracleHub.currentEpoch(), "submit: wrong epoch");
+
+        // compute settlementHash
         bytes32 settlementHash = keccak256(abi.encode(epochId, transfers));
 
-        // 2. Verify all intents (signatures, nonces, expiry, hash)
+        // verify intents
         for (uint256 i = 0; i < intents.length; i++) {
             SignedIntent calldata it = intents[i];
             address signer = _verifyIntent(it, settlementHash);
-            require(signer == it.party, "bad sig");
-            require(it.epochId == epochId, "epoch mismatch");
-            require(block.timestamp <= it.expiry, "expired");
-            require(!nonceUsed[it.party][it.nonce], "nonce used");
-            require(it.settlementHash == settlementHash, "hash mismatch");
+            require(signer == it.party, "submit: bad sig");
+            require(it.epochId == epochId, "submit: epoch mismatch");
+            require(block.timestamp <= it.expiry, "submit: expired");
+            require(!nonceUsed[it.party][it.nonce], "submit: nonce used");
+            require(it.settlementHash == settlementHash, "submit: hash mismatch");
             nonceUsed[it.party][it.nonce] = true;
         }
 
-        // 3. Create settlement record & lock assets
-        settlementId = ++nextSettlementId;
+        // create record & lock assets
+        settlementId = nextSettlementId++;
         SettlementRecord storage rec = settlements[settlementId];
         rec.status = SettlementStatus.Pending;
         rec.epochId = epochId;
         rec.commitBlock = block.number;
         rec.settlementHash = settlementHash;
+        rec.submitter = msg.sender;
+
+        pendingSettlementsCount[msg.sender] += 1;
+
+        bool hasFeeTransfer = false;
 
         for (uint256 j = 0; j < transfers.length; j++) {
             AssetTransfer calldata t = transfers[j];
@@ -177,28 +240,36 @@ contract SettlementManager {
 
             if (t.isERC721) {
                 // NFT must already be deposited in NFTVault by 'from'
-                require(nftVault.ownerOf(t.token, t.tokenId) == t.from, "NFT not in vault");
+                require(nftVault.ownerOf(t.token, t.tokenId) == t.from, "submit: NFT not in vault");
                 nftVault.reserveForSettlement(t.token, t.tokenId, settlementId);
             } else {
                 // Lock ERC-20 inside Vault
                 vault.lock(t.token, t.from, t.amount, settlementId);
+
+                // Consider any ERC-20 transfer to the submitter as fee
+                if (t.to == msg.sender && t.amount > 0) {
+                    hasFeeTransfer = true;
+                }
             }
         }
 
-        emit SettlementPending(settlementId, epochId, settlementHash);
+        // enforce that submitter gets at least some ERC-20 as fee
+        require(hasFeeTransfer, "submit: no fee for submitter");
+
+        emit SettlementPending(settlementId, epochId, settlementHash, msg.sender);
     }
 
     // ----------------- FINALIZE -----------------
 
     function finalizeSettlement(uint256 settlementId) external {
         SettlementRecord storage rec = settlements[settlementId];
-        require(rec.status == SettlementStatus.Pending, "not pending");
-        require(block.number > rec.commitBlock + challengeWindowBlocks, "challenge window");
+        require(rec.status == SettlementStatus.Pending, "finalize: not pending");
+        require(block.number > rec.commitBlock + challengeWindowBlocks, "finalize: challenge window");
 
-        // Move locked balances / NFTs to recipients
         for (uint256 j = 0; j < rec.transfers.length; j++) {
             AssetTransfer storage t = rec.transfers[j];
             if (t.isERC721) {
+                // keep NFT in vault; change logical owner
                 nftVault.finalizeForSettlement(t.token, t.tokenId, t.to, settlementId);
             } else {
                 vault.transferLocked(t.token, t.from, t.to, t.amount, settlementId);
@@ -206,19 +277,21 @@ contract SettlementManager {
         }
 
         rec.status = SettlementStatus.Finalized;
+        pendingSettlementsCount[rec.submitter] -= 1;
+
         emit SettlementFinalized(settlementId);
     }
 
-    // ----------------- CHALLENGE (v0 stub) -----------------
+    // ----------------- CHALLENGE + SLASH -----------------
 
-    // For now, allow INVALIDATION by anyone during the challenge window.
-    // In v1, we'll add real oracle/invariant checks here.
+    /// @notice In v0, any call during the challenge window invalidates the settlement.
+    /// Later, we will add oracle-based checks here.
     function challengeSettlement(uint256 settlementId) external {
         SettlementRecord storage rec = settlements[settlementId];
-        require(rec.status == SettlementStatus.Pending, "not pending");
-        require(block.number <= rec.commitBlock + challengeWindowBlocks, "too late");
+        require(rec.status == SettlementStatus.Pending, "challenge: not pending");
+        require(block.number <= rec.commitBlock + challengeWindowBlocks, "challenge: too late");
 
-        // Rollback: unlock everything and clear NFT reservations
+        // rollback: unlock assets and clear NFT reservations
         for (uint256 j = 0; j < rec.transfers.length; j++) {
             AssetTransfer storage t = rec.transfers[j];
             if (t.isERC721) {
@@ -229,6 +302,28 @@ contract SettlementManager {
         }
 
         rec.status = SettlementStatus.Invalid;
+        pendingSettlementsCount[rec.submitter] -= 1;
+
+        // slash submitter
+        address submitter = rec.submitter;
+        uint256 staked = submitterStake[submitter];
+        uint256 penalty = slashAmount <= staked ? slashAmount : staked;
+
+        if (penalty > 0) {
+            uint256 reward = penalty / 2; // 50% to challenger, 50% stays in contract
+            submitterStake[submitter] -= penalty;
+
+            if (reward > 0) {
+                (bool ok, ) = msg.sender.call{value: reward}("");
+                require(ok, "challenge: reward transfer failed");
+            }
+
+            emit SubmitterSlashed(submitter, penalty, msg.sender, reward);
+        }
+
         emit SettlementInvalidated(settlementId, msg.sender);
     }
+
+    // allow contract to receive ETH (for staking) directly if needed
+    receive() external payable {}
 }

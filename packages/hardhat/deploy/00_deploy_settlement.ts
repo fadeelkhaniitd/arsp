@@ -9,7 +9,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   log("Deploying OracleHub...");
   const oracle = await deploy("OracleHub", {
     from: deployer,
-    args: [300], // maxSnapshotAge = 300 seconds (not used yet in v0 logic)
+    args: [300], // maxSnapshotAge (not used yet in v0)
     log: true,
   });
 
@@ -34,7 +34,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       vault.address,
       nftVault.address,
       oracle.address,
-      10, // challengeWindowBlocks
+      5, // challengeWindowBlocks
+      ethers.parseEther("0.1"), // minSubmitterStake (0.1 ETH)
+      ethers.parseEther("0.05"), // slashAmount (0.05 ETH)
     ],
     log: true,
   });

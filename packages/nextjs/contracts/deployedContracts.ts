@@ -374,6 +374,16 @@ const deployedContracts = {
               name: "_challengeWindowBlocks",
               type: "uint256",
             },
+            {
+              internalType: "uint256",
+              name: "_minSubmitterStake",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "_slashAmount",
+              type: "uint256",
+            },
           ],
           stateMutability: "nonpayable",
           type: "constructor",
@@ -431,8 +441,83 @@ const deployedContracts = {
               name: "hash",
               type: "bytes32",
             },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
           ],
           name: "SettlementPending",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "challenger",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "reward",
+              type: "uint256",
+            },
+          ],
+          name: "SubmitterSlashed",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "SubmitterStaked",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "SubmitterUnstaked",
           type: "event",
         },
         {
@@ -502,6 +587,19 @@ const deployedContracts = {
         },
         {
           inputs: [],
+          name: "minSubmitterStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
           name: "nextSettlementId",
           outputs: [
             {
@@ -564,6 +662,64 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [],
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "pendingSettlementsCount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_minStake",
+              type: "uint256",
+            },
+          ],
+          name: "setMinSubmitterStake",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "_slashAmount",
+              type: "uint256",
+            },
+          ],
+          name: "setSlashAmount",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [
             {
               internalType: "uint256",
@@ -593,8 +749,33 @@ const deployedContracts = {
               name: "settlementHash",
               type: "bytes32",
             },
+            {
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
           ],
           stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "slashAmount",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "stake",
+          outputs: [],
+          stateMutability: "payable",
           type: "function",
         },
         {
@@ -691,6 +872,38 @@ const deployedContracts = {
           type: "function",
         },
         {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "submitterStake",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
+            },
+          ],
+          name: "unstake",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
           inputs: [],
           name: "vault",
           outputs: [
@@ -702,6 +915,10 @@ const deployedContracts = {
           ],
           stateMutability: "view",
           type: "function",
+        },
+        {
+          stateMutability: "payable",
+          type: "receive",
         },
       ],
       inheritedFunctions: {},
