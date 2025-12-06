@@ -217,35 +217,32 @@ contract SettlementManager {
                         FAIRNESS CHECK
     //////////////////////////////////////////////////////////////*/
 
-    function _checkFairness(uint256 epochId, AssetTransfer[] calldata transfers)
-        internal
-        view
-    {
-        // gather unique ERC20 tokens
+    function _checkFairness(uint256 epochId, AssetTransfer[] memory transfers) internal view {
+        // collect unique ERC-20 tokens
         address[] memory tokensTmp = new address[](transfers.length);
-        uint256 tokCount = 0;
+        uint256 tokenCount = 0;
 
         for (uint256 i = 0; i < transfers.length; i++) {
             if (transfers[i].isERC721) continue;
             address tk = transfers[i].token;
-
-            bool found = false;
-            for (uint256 j = 0; j < tokCount; j++) {
+            bool seen = false;
+            for (uint256 j = 0; j < tokenCount; j++) {
                 if (tokensTmp[j] == tk) {
-                    found = true;
+                    seen = true;
                     break;
                 }
             }
-            if (!found) {
-                tokensTmp[tokCount++] = tk;
+            if (!seen) {
+                tokensTmp[tokenCount] = tk;
+                tokenCount++;
             }
         }
 
-        address[] memory tokens = new address[](tokCount);
-        uint256[] memory prices = new uint256[](tokCount);
+        // load prices for each token and check snapshot age
+        address[] memory tokens = new address[](tokenCount);
+        uint256[] memory prices = new uint256[](tokenCount);
 
-        // load oracle prices
-        for (uint256 i = 0; i < tokCount; i++) {
+        for (uint256 i = 0; i < tokenCount; i++) {
             tokens[i] = tokensTmp[i];
             (uint256 p, uint256 ts) = oracleHub.getPrice(epochId, tokens[i]);
             require(ts != 0, "fairness: no price");
@@ -253,52 +250,73 @@ contract SettlementManager {
             prices[i] = p;
         }
 
-        // unique parties
+        // collect unique parties
         address[] memory partiesTmp = new address[](transfers.length * 2);
-        uint256 pCount = 0;
+        uint256 partyCount = 0;
 
         for (uint256 i = 0; i < transfers.length; i++) {
-            AssetTransfer calldata t = transfers[i];
+            AssetTransfer memory t = transfers[i];
 
-            bool f = false;
-            for (uint256 j = 0; j < pCount; j++) if (partiesTmp[j] == t.from) f = true;
-            if (!f) partiesTmp[pCount++] = t.from;
-
-            f = false;
-            for (uint256 j = 0; j < pCount; j++) if (partiesTmp[j] == t.to) f = true;
-            if (!f) partiesTmp[pCount++] = t.to;
-        }
-
-        address[] memory parties = new address[](pCount);
-        uint256[] memory valueGiven = new uint256[](pCount);
-        uint256[] memory valueReceived = new uint256[](pCount);
-
-        for (uint256 i = 0; i < pCount; i++) parties[i] = partiesTmp[i];
-
-        // calculate value flows
-        for (uint256 i = 0; i < transfers.length; i++) {
-            AssetTransfer calldata t = transfers[i];
-            if (t.isERC721) continue;
-
-            uint256 price = 0;
-            for (uint256 j = 0; j < tokCount; j++) {
-                if (tokens[j] == t.token) price = prices[j];
+            // from
+            bool seenFrom = false;
+            for (uint256 j = 0; j < partyCount; j++) {
+                if (partiesTmp[j] == t.from) {
+                    seenFrom = true;
+                    break;
+                }
             }
-            require(price > 0, "fairness: zero price");
+            if (!seenFrom) {
+                partiesTmp[partyCount] = t.from;
+                partyCount++;
+            }
 
-            uint256 value = price * t.amount;
-
-            uint256 fromI = _find(parties, t.from);
-            uint256 toI   = _find(parties, t.to);
-
-            valueGiven[fromI] += value;
-            valueReceived[toI] += value;
+            // to
+            bool seenTo = false;
+            for (uint256 j = 0; j < partyCount; j++) {
+                if (partiesTmp[j] == t.to) {
+                    seenTo = true;
+                    break;
+                }
+            }
+            if (!seenTo) {
+                partiesTmp[partyCount] = t.to;
+                partyCount++;
+            }
         }
 
-        // enforce fairness
+        address[] memory parties = new address[](partyCount);
+        uint256[] memory valueGiven = new uint256[](partyCount);
+        uint256[] memory valueReceived = new uint256[](partyCount);
+
+        for (uint256 i = 0; i < partyCount; i++) {
+            parties[i] = partiesTmp[i];
+        }
+
+        // compute per-party values (ERC-20 only; NFTs treated as zero for now)
+        for (uint256 i = 0; i < transfers.length; i++) {
+            AssetTransfer memory t = transfers[i];
+            if (t.isERC721) {
+                continue;
+            }
+            uint256 price = _priceForToken(tokens, prices, t.token);
+            require(price > 0, "fairness: zero price");
+            uint256 v = t.amount * price;
+
+            uint256 fromIdx = _indexOfParty(parties, partyCount, t.from);
+            uint256 toIdx = _indexOfParty(parties, partyCount, t.to);
+
+            valueGiven[fromIdx] += v;
+            valueReceived[toIdx] += v;
+        }
+
+        // enforce fairness: for each party that gives value, bound how much they can receive
         if (maxFairnessRatioBps > 0) {
-            for (uint256 i = 0; i < pCount; i++) {
-                if (valueGiven[i] == 0) continue;
+            for (uint256 i = 0; i < partyCount; i++) {
+                if (valueGiven[i] == 0) {
+                    // party only receives; skip check for now
+                    continue;
+                }
+                // valueReceived * 10000 <= valueGiven * maxFairnessRatioBps
                 require(
                     valueReceived[i] * 10000 <= valueGiven[i] * maxFairnessRatioBps,
                     "fairness: ratio exceeded"
@@ -312,6 +330,29 @@ contract SettlementManager {
             if (arr[i] == a) return i;
         revert("party not found");
     }
+
+    function _priceForToken(
+        address[] memory tokens,
+        uint256[] memory prices,
+        address token
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            if (tokens[i] == token) return prices[i];
+        }
+        return 0;
+    }
+
+    function _indexOfParty(
+        address[] memory parties,
+        uint256 partyCount,
+        address party
+    ) internal pure returns (uint256) {
+        for (uint256 i = 0; i < partyCount; i++) {
+            if (parties[i] == party) return i;
+        }
+        revert("fairness: party not found");
+    }
+
 
     /*//////////////////////////////////////////////////////////////
                         PUBLIC HELPER
@@ -440,12 +481,46 @@ contract SettlementManager {
                         CHALLENGE
     //////////////////////////////////////////////////////////////*/
 
+    /// @notice Re-check settlement invariants based on current oracle data.
+    /// @dev Used in challengeSettlement via try/catch.
+    ///      Reverts if invariants are violated.
+    function recheckSettlementInvariants(uint256 settlementId) external view {
+        SettlementRecord storage rec = settlements[settlementId];
+        require(rec.status == SettlementStatus.Pending, "recheck: not pending");
+
+        uint256 len = rec.transfers.length;
+        AssetTransfer[] memory memTransfers = new AssetTransfer[](len);
+        for (uint256 i = 0; i < len; i++) {
+            memTransfers[i] = rec.transfers[i];
+        }
+
+        // Re-run fairness check with current oracle prices.
+        _checkFairness(rec.epochId, memTransfers);
+
+        // TODO: later you can add more invariants here, e.g. multi-oracle checks.
+    }
+
     function challengeSettlement(uint256 settlementId) external {
         SettlementRecord storage rec = settlements[settlementId];
-        require(rec.status == SettlementStatus.Pending, "not pending");
-        require(block.number <= rec.commitBlock + challengeWindowBlocks, "window passed");
+        require(rec.status == SettlementStatus.Pending, "challenge: not pending");
+        require(block.number <= rec.commitBlock + challengeWindowBlocks, "challenge: too late");
 
-        // rollback: unlock transfers
+        // --- Model A: Only succeed if invariants are actually broken ---
+
+        // We call recheckSettlementInvariants via external call so we can use try/catch.
+        // If invariants still hold, this call will NOT revert -> we revert challenge.
+        // If invariants are violated, recheckSettlementInvariants will revert,
+        // execution jumps to catch {} branch below and we treat challenge as valid.
+        try this.recheckSettlementInvariants(settlementId) {
+            // Invariants still hold -> challenge is invalid.
+            revert("challenge: invariants hold");
+        } catch {
+            // Invariants are broken -> valid challenge.
+            // We proceed to rollback and slash.
+        }
+
+        // --- rollback: unlock assets and clear NFT reservations ---
+
         for (uint256 j = 0; j < rec.transfers.length; j++) {
             AssetTransfer storage t = rec.transfers[j];
             if (t.isERC721) {
@@ -455,30 +530,32 @@ contract SettlementManager {
             }
         }
 
-        // rollback fees
+        // unlock fees back to parties
         for (uint256 k = 0; k < rec.feeLocks.length; k++) {
             FeeLock storage f = rec.feeLocks[k];
+            // if your FeeLock has token in struct, use that; otherwise adjust
             vault.unlock(f.token, f.party, f.amount, settlementId);
         }
 
         rec.status = SettlementStatus.Invalid;
-        pendingSettlementsCount[rec.submitter]--;
+        pendingSettlementsCount[rec.submitter] -= 1;
 
-        // slash submitter
-        address sub = rec.submitter;
-        uint256 staked = submitterStake[sub];
+        // --- slash submitter and reward challenger ---
+
+        address submitter = rec.submitter;
+        uint256 staked = submitterStake[submitter];
         uint256 penalty = slashAmount <= staked ? slashAmount : staked;
 
         if (penalty > 0) {
             uint256 reward = penalty / 2;
-            submitterStake[sub] -= penalty;
+            submitterStake[submitter] -= penalty;
 
             if (reward > 0) {
                 (bool ok, ) = msg.sender.call{value: reward}("");
-                require(ok, "reward transfer failed");
+                require(ok, "challenge: reward transfer failed");
             }
 
-            emit SubmitterSlashed(sub, penalty, msg.sender, reward);
+            emit SubmitterSlashed(submitter, penalty, msg.sender, reward);
         }
 
         emit SettlementInvalidated(settlementId, msg.sender);
