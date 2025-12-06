@@ -234,8 +234,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {
-        onERC721Received:
-          "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
       deployedOnBlock: 3,
     },
@@ -1272,7 +1271,7 @@ const deployedContracts = {
   },
   11155111: {
     NFTVault: {
-      address: "0xeD0041786478BF259d37Cf5D4f09D42677Ffe770",
+      address: "0x06b22ec1FB3D5B70866d3cF43E09A13a246D012f",
       abi: [
         {
           inputs: [],
@@ -1499,13 +1498,12 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {
-        onERC721Received:
-          "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
-      deployedOnBlock: 9778126,
+      deployedOnBlock: 9778944,
     },
     OracleHub: {
-      address: "0xc5107a86e402C9bC1D845A5eDF796AE89077189c",
+      address: "0xaa210C505b23fBEbBAa9262dbfc08EB132751998",
       abi: [
         {
           inputs: [
@@ -1613,10 +1611,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778123,
+      deployedOnBlock: 9778942,
     },
     SettlementManager: {
-      address: "0x62D8b6E9d8D3FA4f9E2Ca26b32352DdDbB8E1a87",
+      address: "0xE96c630Fd9f9eECfc5172f0c041be050D3BF3CA2",
       abi: [
         {
           inputs: [
@@ -1915,6 +1913,132 @@ const deployedContracts = {
           name: "finalizeSettlement",
           outputs: [],
           stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getSettlementFeeLocks",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "party",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "token",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+              ],
+              internalType: "struct SettlementManager.FeeLock[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getSettlementSummary",
+          outputs: [
+            {
+              internalType: "enum SettlementManager.SettlementStatus",
+              name: "status",
+              type: "uint8",
+            },
+            {
+              internalType: "uint256",
+              name: "epochId",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "commitBlock",
+              type: "uint256",
+            },
+            {
+              internalType: "bytes32",
+              name: "settlementHash",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "submitter",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "id",
+              type: "uint256",
+            },
+          ],
+          name: "getSettlementTransfers",
+          outputs: [
+            {
+              components: [
+                {
+                  internalType: "address",
+                  name: "token",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "from",
+                  type: "address",
+                },
+                {
+                  internalType: "address",
+                  name: "to",
+                  type: "address",
+                },
+                {
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
+                },
+                {
+                  internalType: "uint256",
+                  name: "tokenId",
+                  type: "uint256",
+                },
+                {
+                  internalType: "bool",
+                  name: "isERC721",
+                  type: "bool",
+                },
+              ],
+              internalType: "struct SettlementManager.AssetTransfer[]",
+              name: "",
+              type: "tuple[]",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -2316,10 +2440,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778127,
+      deployedOnBlock: 9778945,
     },
     Vault: {
-      address: "0xa8CA58d542595241Fe0b6075D1b02E0d8B7CB632",
+      address: "0x708b1De0E7837396De0DfA9245dcc89a1A7e0cDe",
       abi: [
         {
           inputs: [],
@@ -2532,7 +2656,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778125,
+      deployedOnBlock: 9778943,
     },
   },
 } as const;
