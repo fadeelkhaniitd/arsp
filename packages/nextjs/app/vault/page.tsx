@@ -5,7 +5,7 @@ import { Address, parseEther } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
-// Minimal ERC20 ABI (approve + allowance)
+// Minimal ERC20 ABI
 const erc20Abi = [
   {
     type: "function",
@@ -17,42 +17,21 @@ const erc20Abi = [
     ],
     outputs: [{ name: "", type: "bool" }],
   },
-  {
-    type: "function",
-    name: "allowance",
-    stateMutability: "view",
-    inputs: [
-      { name: "owner", type: "address" },
-      { name: "spender", type: "address" },
-    ],
-    outputs: [{ name: "", type: "uint256" }],
-  },
 ] as const;
 
-// Minimal ERC721 ABI (for direct safeTransfer or approvals if you ever need)
-// const erc721Abi = [
-//   {
-//     type: "function",
-//     name: "safeTransferFrom",
-//     stateMutability: "nonpayable",
-//     inputs: [
-//       { name: "from", type: "address" },
-//       { name: "to", type: "address" },
-//       { name: "tokenId", type: "uint256" },
-//     ],
-//     outputs: [],
-//   },
-//   {
-//     type: "function",
-//     name: "setApprovalForAll",
-//     stateMutability: "nonpayable",
-//     inputs: [
-//       { name: "operator", type: "address" },
-//       { name: "approved", type: "bool" },
-//     ],
-//     outputs: [],
-//   },
-// ] as const;
+// Minimal ERC721 ABI
+const erc721Abi = [
+  {
+    type: "function",
+    name: "setApprovalForAll",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "operator", type: "address" },
+      { name: "approved", type: "bool" },
+    ],
+    outputs: [],
+  },
+] as const;
 
 export default function VaultPage() {
   const { address } = useAccount();
@@ -69,16 +48,13 @@ export default function VaultPage() {
 
   // ERC20 state
   const [erc20Token, setErc20Token] = useState("");
-  const [erc20ApproveAmount, setErc20ApproveAmount] = useState("0");
-  const [erc20DepositAmount, setErc20DepositAmount] = useState("0");
+  const [erc20Amount, setErc20Amount] = useState("0");
   const [erc20WithdrawAmount, setErc20WithdrawAmount] = useState("0");
-  const [erc20Allowance, setErc20Allowance] = useState<string | null>(null);
 
   // ERC721 state
   const [nftToken, setNftToken] = useState("");
-  const [nftTokenId, setNftTokenId] = useState("");
+  const [nftTokenIdDeposit, setNftTokenIdDeposit] = useState("");
   const [nftTokenIdWithdraw, setNftTokenIdWithdraw] = useState("");
-  const [nftOwnerCheck, setNftOwnerCheck] = useState<string | null>(null);
 
   const [status, setStatus] = useState("");
 
@@ -89,73 +65,43 @@ export default function VaultPage() {
     if (!nftVaultAddr || !nftVaultAbi) throw new Error("NFTVault contract not loaded.");
   }
 
-  // ---------------- ERC20: Approve Vault ----------------
+  // ---------------- ERC20: Deposit (approve + deposit) ----------------
 
-  const handleApproveErc20 = async () => {
+  const handleDepositErc20 = async () => {
     try {
       ensureReady();
       if (!erc20Token) throw new Error("ERC20 token address required.");
-      const amount = parseEther(erc20ApproveAmount || "0");
-      if (amount <= 0n) throw new Error("Approve amount must be > 0.");
+      const amount = parseEther(erc20Amount || "0");
+      if (amount <= 0n) throw new Error("Deposit amount must be > 0.");
 
-      setStatus("Sending ERC20 approve tx...");
-      const txHash = await writeContractAsync({
+      // 1) Approve vault to spend tokens
+      setStatus("Approving Vault to spend your ERC20...");
+      const approveHash = await writeContractAsync({
         address: erc20Token as Address,
         abi: erc20Abi,
         functionName: "approve",
         args: [vaultAddr!, amount],
       });
 
-      setStatus(`Approve submitted: ${txHash}`);
-    } catch (err: any) {
-      console.error(err);
-      setStatus(err?.shortMessage || err?.message || "Error approving ERC20.");
-    }
-  };
+      await publicClient!.waitForTransactionReceipt({ hash: approveHash });
 
-  const handleCheckAllowance = async () => {
-    try {
-      ensureReady();
-      if (!erc20Token) throw new Error("ERC20 token address required.");
-
-      const value = (await publicClient!.readContract({
-        address: erc20Token as Address,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address as Address, vaultAddr!],
-      })) as bigint;
-
-      setErc20Allowance(value.toString());
-      setStatus("Allowance fetched.");
-    } catch (err: any) {
-      console.error(err);
-      setStatus(err?.shortMessage || err?.message || "Error reading allowance.");
-    }
-  };
-
-  // ---------------- ERC20: Deposit / Withdraw ----------------
-
-  const handleDepositErc20 = async () => {
-    try {
-      ensureReady();
-      if (!erc20Token) throw new Error("ERC20 token address required.");
-      const amount = parseEther(erc20DepositAmount || "0");
-      if (amount <= 0n) throw new Error("Deposit amount must be > 0.");
-
-      setStatus("Sending Vault.deposit tx...");
-      const txHash = await writeContractAsync({
+      // 2) Call Vault.deposit
+      setStatus("Approval mined. Depositing into Vault...");
+      const depositHash = await writeContractAsync({
         address: vaultAddr!,
         abi: vaultAbi!,
         functionName: "deposit",
         args: [erc20Token as Address, amount],
       });
 
-      setStatus(`ERC20 deposit tx: ${txHash}`);
+      setStatus(`ERC20 deposit tx: ${depositHash}`);
     } catch (err: any) {
       console.error(err);
       setStatus(err?.shortMessage || err?.message || "Error depositing ERC20.");
     }
   };
+
+  // ---------------- ERC20: Withdraw ----------------
 
   const handleWithdrawErc20 = async () => {
     try {
@@ -164,7 +110,7 @@ export default function VaultPage() {
       const amount = parseEther(erc20WithdrawAmount || "0");
       if (amount <= 0n) throw new Error("Withdraw amount must be > 0.");
 
-      setStatus("Sending Vault.withdraw tx...");
+      setStatus("Withdrawing from Vault...");
       const txHash = await writeContractAsync({
         address: vaultAddr!,
         abi: vaultAbi!,
@@ -179,17 +125,28 @@ export default function VaultPage() {
     }
   };
 
-  // ---------------- ERC721: Deposit / Withdraw ----------------
+  // ---------------- ERC721: Deposit (setApprovalForAll + deposit) ----------------
 
   const handleDepositNft = async () => {
     try {
       ensureReady();
       if (!nftToken) throw new Error("NFT token address required.");
-      if (!nftTokenId) throw new Error("NFT tokenId required.");
-      const tokenIdBig = BigInt(nftTokenId);
+      if (!nftTokenIdDeposit) throw new Error("NFT tokenId required.");
+      const tokenIdBig = BigInt(nftTokenIdDeposit);
 
-      // We assume NFTVault has: function deposit(address token, uint256 tokenId)
-      setStatus("Sending NFTVault.deposit tx...");
+      // 1) Grant approval to NFTVault
+      setStatus("Approving NFTVault to manage your NFTs...");
+      const approveHash = await writeContractAsync({
+        address: nftToken as Address,
+        abi: erc721Abi,
+        functionName: "setApprovalForAll",
+        args: [nftVaultAddr!, true],
+      });
+
+      await publicClient!.waitForTransactionReceipt({ hash: approveHash });
+
+      // 2) Call NFTVault.deposit
+      setStatus("Approval mined. Depositing NFT into NFTVault...");
       const txHash = await writeContractAsync({
         address: nftVaultAddr!,
         abi: nftVaultAbi!,
@@ -204,6 +161,8 @@ export default function VaultPage() {
     }
   };
 
+  // ---------------- ERC721: Withdraw ----------------
+
   const handleWithdrawNft = async () => {
     try {
       ensureReady();
@@ -211,8 +170,7 @@ export default function VaultPage() {
       if (!nftTokenIdWithdraw) throw new Error("NFT tokenId required.");
       const tokenIdBig = BigInt(nftTokenIdWithdraw);
 
-      // We assume NFTVault has: function withdraw(address token, uint256 tokenId)
-      setStatus("Sending NFTVault.withdraw tx...");
+      setStatus("Withdrawing NFT from NFTVault...");
       const txHash = await writeContractAsync({
         address: nftVaultAddr!,
         abi: nftVaultAbi!,
@@ -227,77 +185,36 @@ export default function VaultPage() {
     }
   };
 
-  const handleCheckNftOwner = async () => {
-    try {
-      ensureReady();
-      if (!nftToken) throw new Error("NFT token address required.");
-      if (!nftTokenIdWithdraw) throw new Error("NFT tokenId required.");
-      const tokenIdBig = BigInt(nftTokenIdWithdraw);
-
-      const owner = (await publicClient!.readContract({
-        address: nftVaultAddr!,
-        abi: nftVaultAbi!,
-        functionName: "ownerOf",
-        args: [nftToken as Address, tokenIdBig],
-      })) as Address;
-
-      setNftOwnerCheck(owner);
-      setStatus("Fetched NFT vault owner.");
-    } catch (err: any) {
-      console.error(err);
-      setStatus(err?.shortMessage || err?.message || "Error checking NFT owner.");
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto mt-10 p-6 flex flex-col gap-8 border rounded-2xl shadow">
-      <h1 className="text-2xl font-bold">Vault / Funding</h1>
+      <h1 className="text-2xl font-bold">Vault Funding</h1>
 
-      {/* ERC20 APPROVE */}
+      {/* ERC20 section */}
       <section className="p-4 border rounded-xl flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">1. Approve ERC20 for Vault</h2>
+        <h2 className="text-lg font-semibold">ERC20 (tokens)</h2>
         <input
           className="input input-bordered"
           placeholder="ERC20 token address"
           value={erc20Token}
           onChange={e => setErc20Token(e.target.value)}
         />
-        <div className="flex gap-3">
-          <input
-            className="input input-bordered flex-1"
-            placeholder="Amount (assumes 18 decimals)"
-            value={erc20ApproveAmount}
-            onChange={e => setErc20ApproveAmount(e.target.value)}
-          />
-          <button className="btn btn-outline" onClick={handleApproveErc20}>
-            Approve
-          </button>
-          <button className="btn btn-ghost" onClick={handleCheckAllowance}>
-            Check allowance
-          </button>
-        </div>
-        {erc20Allowance !== null && (
-          <div className="text-sm text-gray-600">Current allowance for Vault: {erc20Allowance} (raw units)</div>
-        )}
-      </section>
 
-      {/* ERC20 DEPOSIT / WITHDRAW */}
-      <section className="p-4 border rounded-xl flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">2. ERC20 Deposit / Withdraw</h2>
         <div className="grid grid-cols-2 gap-4">
+          {/* Deposit */}
           <div className="flex flex-col gap-2">
             <span className="font-medium">Deposit</span>
             <input
               className="input input-bordered"
               placeholder="Amount (assumes 18 decimals)"
-              value={erc20DepositAmount}
-              onChange={e => setErc20DepositAmount(e.target.value)}
+              value={erc20Amount}
+              onChange={e => setErc20Amount(e.target.value)}
             />
             <button className="btn btn-primary" onClick={handleDepositErc20}>
-              Deposit to Vault
+              Approve & Deposit
             </button>
           </div>
 
+          {/* Withdraw */}
           <div className="flex flex-col gap-2">
             <span className="font-medium">Withdraw</span>
             <input
@@ -313,9 +230,9 @@ export default function VaultPage() {
         </div>
       </section>
 
-      {/* ERC721 DEPOSIT / WITHDRAW */}
+      {/* ERC721 section */}
       <section className="p-4 border rounded-xl flex flex-col gap-3">
-        <h2 className="text-lg font-semibold">3. NFT Deposit / Withdraw</h2>
+        <h2 className="text-lg font-semibold">ERC721 (NFTs)</h2>
         <input
           className="input input-bordered"
           placeholder="ERC721 token address"
@@ -324,19 +241,21 @@ export default function VaultPage() {
         />
 
         <div className="grid grid-cols-2 gap-4">
+          {/* Deposit NFT */}
           <div className="flex flex-col gap-2">
             <span className="font-medium">Deposit NFT</span>
             <input
               className="input input-bordered"
               placeholder="Token ID"
-              value={nftTokenId}
-              onChange={e => setNftTokenId(e.target.value)}
+              value={nftTokenIdDeposit}
+              onChange={e => setNftTokenIdDeposit(e.target.value)}
             />
             <button className="btn btn-primary" onClick={handleDepositNft}>
-              Deposit to NFTVault
+              Approve & Deposit
             </button>
           </div>
 
+          {/* Withdraw NFT */}
           <div className="flex flex-col gap-2">
             <span className="font-medium">Withdraw NFT</span>
             <input
@@ -345,17 +264,9 @@ export default function VaultPage() {
               value={nftTokenIdWithdraw}
               onChange={e => setNftTokenIdWithdraw(e.target.value)}
             />
-            <div className="flex gap-2">
-              <button className="btn btn-secondary" onClick={handleWithdrawNft}>
-                Withdraw
-              </button>
-              <button className="btn btn-ghost" onClick={handleCheckNftOwner}>
-                Check vault ownerOf
-              </button>
-            </div>
-            {nftOwnerCheck && (
-              <div className="text-sm text-gray-600">NFTVault ownerOf(token, tokenId): {nftOwnerCheck}</div>
-            )}
+            <button className="btn btn-secondary" onClick={handleWithdrawNft}>
+              Withdraw from NFTVault
+            </button>
           </div>
         </div>
       </section>
