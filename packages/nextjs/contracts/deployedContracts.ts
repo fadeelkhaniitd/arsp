@@ -1271,7 +1271,7 @@ const deployedContracts = {
   },
   11155111: {
     NFTVault: {
-      address: "0x06b22ec1FB3D5B70866d3cF43E09A13a246D012f",
+      address: "0x609998FBA6c4964917B8948a163A77f8B6554d71",
       abi: [
         {
           inputs: [],
@@ -1500,10 +1500,10 @@ const deployedContracts = {
       inheritedFunctions: {
         onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
-      deployedOnBlock: 9778944,
+      deployedOnBlock: 9779294,
     },
     OracleHub: {
-      address: "0xaa210C505b23fBEbBAa9262dbfc08EB132751998",
+      address: "0x359433cefb8f16E7484fA76e71D20741C6685da2",
       abi: [
         {
           inputs: [
@@ -1611,10 +1611,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778942,
+      deployedOnBlock: 9779292,
     },
     SettlementManager: {
-      address: "0xE96c630Fd9f9eECfc5172f0c041be050D3BF3CA2",
+      address: "0x0460466158c3E17a79c7394b342f637dB1A5c646",
       abi: [
         {
           inputs: [
@@ -2179,6 +2179,19 @@ const deployedContracts = {
           inputs: [
             {
               internalType: "uint256",
+              name: "settlementId",
+              type: "uint256",
+            },
+          ],
+          name: "recheckSettlementInvariants",
+          outputs: [],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
               name: "a",
               type: "uint256",
             },
@@ -2440,10 +2453,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778945,
+      deployedOnBlock: 9779295,
     },
     Vault: {
-      address: "0x708b1De0E7837396De0DfA9245dcc89a1A7e0cDe",
+      address: "0xBdC4780CbC1a1D523B9F8d717321C3Be328D87dE",
       abi: [
         {
           inputs: [],
@@ -2656,7 +2669,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9778943,
+      deployedOnBlock: 9779293,
     },
   },
 } as const;
