@@ -484,5 +484,50 @@ contract SettlementManager {
         emit SettlementInvalidated(settlementId, msg.sender);
     }
 
+        // ----------------- VIEW HELPERS FOR UI -----------------
+
+    function getSettlementSummary(uint256 id)
+        external
+        view
+        returns (
+            SettlementStatus status,
+            uint256 epochId,
+            uint256 commitBlock,
+            bytes32 settlementHash,
+            address submitter
+        )
+    {
+        SettlementRecord storage rec = settlements[id];
+        return (rec.status, rec.epochId, rec.commitBlock, rec.settlementHash, rec.submitter);
+    }
+
+    function getSettlementTransfers(uint256 id)
+        external
+        view
+        returns (AssetTransfer[] memory)
+    {
+        SettlementRecord storage rec = settlements[id];
+        uint256 len = rec.transfers.length;
+        AssetTransfer[] memory out = new AssetTransfer[](len);
+        for (uint256 i = 0; i < len; i++) {
+            out[i] = rec.transfers[i];
+        }
+        return out;
+    }
+
+    function getSettlementFeeLocks(uint256 id)
+        external
+        view
+        returns (FeeLock[] memory)
+    {
+        SettlementRecord storage rec = settlements[id];
+        uint256 len = rec.feeLocks.length;
+        FeeLock[] memory out = new FeeLock[](len);
+        for (uint256 i = 0; i < len; i++) {
+            out[i] = rec.feeLocks[i];
+        }
+        return out;
+    }
+
     receive() external payable {}
 }
