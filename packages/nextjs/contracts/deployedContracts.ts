@@ -1271,7 +1271,7 @@ const deployedContracts = {
   },
   11155111: {
     NFTVault: {
-      address: "0x609998FBA6c4964917B8948a163A77f8B6554d71",
+      address: "0x70edD3C739E242aaCec8eA1E1DC1e63A5ea25F0d",
       abi: [
         {
           inputs: [],
@@ -1500,21 +1500,85 @@ const deployedContracts = {
       inheritedFunctions: {
         onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
-      deployedOnBlock: 9779294,
+      deployedOnBlock: 9779667,
     },
     OracleHub: {
-      address: "0x359433cefb8f16E7484fA76e71D20741C6685da2",
+      address: "0xcc012bA4E3174C32690Cb5f799462e80031cc366",
       abi: [
         {
+          inputs: [],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
           inputs: [
             {
+              indexed: true,
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "feed",
+              type: "address",
+            },
+          ],
+          name: "ChainlinkFeedSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: false,
               internalType: "uint256",
-              name: "_maxSnapshotAge",
+              name: "newEpoch",
               type: "uint256",
             },
           ],
-          stateMutability: "nonpayable",
-          type: "constructor",
+          name: "EpochRolled",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+          ],
+          name: "ManualPriceSet",
+          type: "event",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "chainlinkFeed",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
         },
         {
           inputs: [],
@@ -1551,6 +1615,42 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
+              name: "ts",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "newEpoch",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "prices",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "price",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
               name: "timestamp",
               type: "uint256",
             },
@@ -1559,34 +1659,19 @@ const deployedContracts = {
           type: "function",
         },
         {
-          inputs: [],
-          name: "maxSnapshotAge",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "owner",
-          outputs: [
+          inputs: [
             {
               internalType: "address",
-              name: "",
+              name: "token",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "feed",
               type: "address",
             },
           ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [],
-          name: "rollEpoch",
+          name: "setChainlinkFeed",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -1611,10 +1696,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779292,
+      deployedOnBlock: 9779668,
     },
     SettlementManager: {
-      address: "0x0460466158c3E17a79c7394b342f637dB1A5c646",
+      address: "0x1Ab2d7dbFa1Ee8954c83002614081b88e9E281C7",
       abi: [
         {
           inputs: [
@@ -2453,10 +2538,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779295,
+      deployedOnBlock: 9779669,
     },
     Vault: {
-      address: "0xBdC4780CbC1a1D523B9F8d717321C3Be328D87dE",
+      address: "0xA3108D38bf458E2af8205C00155CAced141683cD",
       abi: [
         {
           inputs: [],
@@ -2669,7 +2754,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779293,
+      deployedOnBlock: 9779666,
     },
   },
 } as const;
