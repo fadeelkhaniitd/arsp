@@ -1271,7 +1271,7 @@ const deployedContracts = {
   },
   11155111: {
     NFTVault: {
-      address: "0x70edD3C739E242aaCec8eA1E1DC1e63A5ea25F0d",
+      address: "0x55c891dEBB0741E8294cD3998D1fa4442824DE4f",
       abi: [
         {
           inputs: [],
@@ -1500,10 +1500,10 @@ const deployedContracts = {
       inheritedFunctions: {
         onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
-      deployedOnBlock: 9779667,
+      deployedOnBlock: 9780021,
     },
     OracleHub: {
-      address: "0xcc012bA4E3174C32690Cb5f799462e80031cc366",
+      address: "0x4fA6daabAd16350FB358Dfc944AFf4574A844Ba3",
       abi: [
         {
           inputs: [],
@@ -1522,11 +1522,11 @@ const deployedContracts = {
             {
               indexed: true,
               internalType: "address",
-              name: "feed",
+              name: "proxy",
               type: "address",
             },
           ],
-          name: "ChainlinkFeedSet",
+          name: "Api3ProxySet",
           type: "event",
         },
         {
@@ -1539,12 +1539,37 @@ const deployedContracts = {
               type: "uint256",
             },
           ],
-          name: "EpochRolled",
+          name: "EpochAdvanced",
           type: "event",
         },
         {
           anonymous: false,
           inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "oldOwner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "OwnerChanged",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "uint256",
+              name: "epochId",
+              type: "uint256",
+            },
             {
               indexed: true,
               internalType: "address",
@@ -1557,9 +1582,28 @@ const deployedContracts = {
               name: "price",
               type: "uint256",
             },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "timestamp",
+              type: "uint256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "source",
+              type: "string",
+            },
           ],
-          name: "ManualPriceSet",
+          name: "PriceSet",
           type: "event",
+        },
+        {
+          inputs: [],
+          name: "advanceEpoch",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
           inputs: [
@@ -1569,7 +1613,7 @@ const deployedContracts = {
               type: "address",
             },
           ],
-          name: "chainlinkFeed",
+          name: "api3Proxy",
           outputs: [
             {
               internalType: "address",
@@ -1615,7 +1659,7 @@ const deployedContracts = {
             },
             {
               internalType: "uint256",
-              name: "ts",
+              name: "timestamp",
               type: "uint256",
             },
           ],
@@ -1624,9 +1668,15 @@ const deployedContracts = {
         },
         {
           inputs: [],
-          name: "newEpoch",
-          outputs: [],
-          stateMutability: "nonpayable",
+          name: "owner",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
           type: "function",
         },
         {
@@ -1667,11 +1717,24 @@ const deployedContracts = {
             },
             {
               internalType: "address",
-              name: "feed",
+              name: "proxy",
               type: "address",
             },
           ],
-          name: "setChainlinkFeed",
+          name: "setApi3Proxy",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
+          ],
+          name: "setOwner",
           outputs: [],
           stateMutability: "nonpayable",
           type: "function",
@@ -1694,12 +1757,25 @@ const deployedContracts = {
           stateMutability: "nonpayable",
           type: "function",
         },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "token",
+              type: "address",
+            },
+          ],
+          name: "updateFromApi3",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779668,
+      deployedOnBlock: 9780022,
     },
     SettlementManager: {
-      address: "0x1Ab2d7dbFa1Ee8954c83002614081b88e9E281C7",
+      address: "0x8E739015E0e61BEca1fB23A91815ba356cF653B6",
       abi: [
         {
           inputs: [
@@ -2538,10 +2614,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779669,
+      deployedOnBlock: 9780023,
     },
     Vault: {
-      address: "0xA3108D38bf458E2af8205C00155CAced141683cD",
+      address: "0xC611069135dF8B510F9C1c4eD12BCF5a8c11A32A",
       abi: [
         {
           inputs: [],
@@ -2754,7 +2830,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9779666,
+      deployedOnBlock: 9780020,
     },
   },
 } as const;

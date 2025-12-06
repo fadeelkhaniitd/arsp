@@ -1,5 +1,5 @@
 {
-  "address": "0xcc012bA4E3174C32690Cb5f799462e80031cc366",
+  "address": "0x4fA6daabAd16350FB358Dfc944AFf4574A844Ba3",
   "abi": [
     {
       "inputs": [],
@@ -18,11 +18,11 @@
         {
           "indexed": true,
           "internalType": "address",
-          "name": "feed",
+          "name": "proxy",
           "type": "address"
         }
       ],
-      "name": "ChainlinkFeedSet",
+      "name": "Api3ProxySet",
       "type": "event"
     },
     {
@@ -35,12 +35,37 @@
           "type": "uint256"
         }
       ],
-      "name": "EpochRolled",
+      "name": "EpochAdvanced",
       "type": "event"
     },
     {
       "anonymous": false,
       "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnerChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "epochId",
+          "type": "uint256"
+        },
         {
           "indexed": true,
           "internalType": "address",
@@ -52,10 +77,29 @@
           "internalType": "uint256",
           "name": "price",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "source",
+          "type": "string"
         }
       ],
-      "name": "ManualPriceSet",
+      "name": "PriceSet",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "advanceEpoch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "inputs": [
@@ -65,7 +109,7 @@
           "type": "address"
         }
       ],
-      "name": "chainlinkFeed",
+      "name": "api3Proxy",
       "outputs": [
         {
           "internalType": "address",
@@ -111,7 +155,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "ts",
+          "name": "timestamp",
           "type": "uint256"
         }
       ],
@@ -120,9 +164,15 @@
     },
     {
       "inputs": [],
-      "name": "newEpoch",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -163,11 +213,24 @@
         },
         {
           "internalType": "address",
-          "name": "feed",
+          "name": "proxy",
           "type": "address"
         }
       ],
-      "name": "setChainlinkFeed",
+      "name": "setApi3Proxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "setOwner",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -189,64 +252,107 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "updateFromApi3",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ],
-  "transactionHash": "0x17a48e2d34d048a6fc0280293f99ad499b894eaa2114ecb6429e98ea1058a0a0",
+  "transactionHash": "0x6a4e5c130ed3b70412f907ebfbff847ef85fe5e98fd83a6aa251a225291e35ad",
   "receipt": {
     "to": null,
     "from": "0x04a39E9046950be710EAFe6EDB90E11a010C4072",
-    "contractAddress": "0xcc012bA4E3174C32690Cb5f799462e80031cc366",
-    "transactionIndex": 38,
-    "gasUsed": "356428",
+    "contractAddress": "0x4fA6daabAd16350FB358Dfc944AFf4574A844Ba3",
+    "transactionIndex": 64,
+    "gasUsed": "574330",
     "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0x41bd56ce1c0010d05c352d2d3bb009f47f87ab374b57094415e8357d9cc41021",
-    "transactionHash": "0x17a48e2d34d048a6fc0280293f99ad499b894eaa2114ecb6429e98ea1058a0a0",
+    "blockHash": "0xd2e3ae99581919607662c6cdc6b47f5aff0fe60158d5d89031eacb14681e0576",
+    "transactionHash": "0x6a4e5c130ed3b70412f907ebfbff847ef85fe5e98fd83a6aa251a225291e35ad",
     "logs": [],
-    "blockNumber": 9779668,
-    "cumulativeGasUsed": "9335009",
+    "blockNumber": 9780022,
+    "cumulativeGasUsed": "5731846",
     "status": 1,
     "byzantium": true
   },
   "args": [],
   "numDeployments": 1,
-  "solcInputHash": "00e972a75787e18965571f6b17ae672f",
-  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"ChainlinkFeedSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newEpoch\",\"type\":\"uint256\"}],\"name\":\"EpochRolled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"ManualPriceSet\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"chainlinkFeed\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentEpoch\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"epochId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"ts\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"newEpoch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"prices\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"feed\",\"type\":\"address\"}],\"name\":\"setChainlinkFeed\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"setPrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/OracleHub.sol\":\"OracleHub\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/OracleHub.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\ninterface IAggregatorV3 {\\n    function latestRoundData()\\n        external\\n        view\\n        returns (\\n            uint80 roundId,\\n            int256 answer,\\n            uint256 startedAt,\\n            uint256 updatedAt,\\n            uint80 answeredInRound\\n        );\\n}\\n\\ncontract OracleHub {\\n    struct PriceSnapshot {\\n        uint256 price;\\n        uint256 timestamp;\\n    }\\n\\n    // Current epoch (validators choose epochs externally)\\n    uint256 public currentEpoch;\\n\\n    // epoch => token => snapshot\\n    mapping(uint256 => mapping(address => PriceSnapshot)) public prices;\\n\\n    // token => Chainlink feed\\n    mapping(address => address) public chainlinkFeed;\\n\\n    event EpochRolled(uint256 newEpoch);\\n    event ManualPriceSet(address indexed token, uint256 price);\\n    event ChainlinkFeedSet(address indexed token, address indexed feed);\\n\\n    constructor() {}\\n\\n    // -------------------------------------------------------\\n    // 1. Configure Chainlink feed for token\\n    // -------------------------------------------------------\\n    function setChainlinkFeed(address token, address feed) external {\\n        require(token != address(0), \\\"token=0\\\");\\n        require(feed != address(0), \\\"feed=0\\\");\\n\\n        chainlinkFeed[token] = feed;\\n        emit ChainlinkFeedSet(token, feed);\\n    }\\n\\n    // -------------------------------------------------------\\n    // 2. Manual fallback\\n    // -------------------------------------------------------\\n    function setPrice(address token, uint256 price) external {\\n        prices[currentEpoch][token] =\\n            PriceSnapshot(price, block.timestamp);\\n\\n        emit ManualPriceSet(token, price);\\n    }\\n\\n    // -------------------------------------------------------\\n    // 3. Read price: prefer Chainlink, fallback to manual\\n    // -------------------------------------------------------\\n    function getPrice(uint256 epochId, address token)\\n        external\\n        view\\n        returns (uint256 price, uint256 ts)\\n    {\\n        address feed = chainlinkFeed[token];\\n\\n        if (feed != address(0)) {\\n            // Try chainlink\\n            (\\n                ,\\n                int256 answer,\\n                ,\\n                uint256 updatedAt,\\n\\n            ) = IAggregatorV3(feed).latestRoundData();\\n\\n            if (answer > 0) {\\n                return (uint256(answer), updatedAt);\\n            }\\n        }\\n\\n        // fallback: manual\\n        PriceSnapshot memory snap = prices[epochId][token];\\n        return (snap.price, snap.timestamp);\\n    }\\n\\n    // -------------------------------------------------------\\n    // 4. Epoch rolling\\n    // -------------------------------------------------------\\n    function newEpoch() external {\\n        currentEpoch++;\\n        emit EpochRolled(currentEpoch);\\n    }\\n}\",\"keccak256\":\"0x46c3a5d808139bc93451859d1b5b86fe10a7f4c86754d1aca2a6e13198c88d1b\",\"license\":\"MIT\"}},\"version\":1}",
-  "bytecode": "0x608060405234801561001057600080fd5b5061057c806100206000396000f3fe608060405234801561001057600080fd5b506004361061007c5760003560e01c806369ef32d21161005b57806369ef32d2146100cb57806376671808146100de578063cfadb743146100f5578063fd02dac01461013657600080fd5b8062e4768b1461008157806310f95fbe146100965780632b57cfbb1461009e575b600080fd5b61009461008f366004610413565b610165565b005b6100946101de565b6100b16100ac36600461043d565b61022f565b604080519283526020830191909152015b60405180910390f35b6100946100d9366004610469565b61031c565b6100e760005481565b6040519081526020016100c2565b61011e610103366004610493565b6002602052600090815260409020546001600160a01b031681565b6040516001600160a01b0390911681526020016100c2565b6100b161014436600461043d565b60016020818152600093845260408085209091529183529120805491015482565b60408051808201825282815242602080830191825260008054815260018083528582206001600160a01b03891680845290845291869020945185559251939092019290925591518381527f469ff3a7ada7a8c122e2729e7041dfdabfc5e8b26802fa04d7f00706149c4e24910160405180910390a25050565b6000805490806101ed836104b5565b91905055507f1aef00e516d58ced6baf53a6966cc2bec8edeceb4ebdc6521c8bd49a4cf3170560005460405161022591815260200190565b60405180910390a1565b6001600160a01b03808216600090815260026020526040812054909182911680156102d857600080826001600160a01b031663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa158015610295573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102b991906104f6565b5093505092505060008213156102d55790935091506103159050565b50505b50505060008281526001602081815260408084206001600160a01b0386168552825292839020835180850190945280548085529201549201829052905b9250929050565b6001600160a01b0382166103615760405162461bcd60e51b81526020600482015260076024820152660746f6b656e3d360cc1b60448201526064015b60405180910390fd5b6001600160a01b0381166103a05760405162461bcd60e51b81526020600482015260066024820152650666565643d360d41b6044820152606401610358565b6001600160a01b0382811660008181526002602052604080822080546001600160a01b0319169486169485179055517fb9b75140a682094a10720170347bc8e03bfd71f1bb59d103cd8dc0782c5256839190a35050565b80356001600160a01b038116811461040e57600080fd5b919050565b6000806040838503121561042657600080fd5b61042f836103f7565b946020939093013593505050565b6000806040838503121561045057600080fd5b82359150610460602084016103f7565b90509250929050565b6000806040838503121561047c57600080fd5b610485836103f7565b9150610460602084016103f7565b6000602082840312156104a557600080fd5b6104ae826103f7565b9392505050565b6000600182016104d557634e487b7160e01b600052601160045260246000fd5b5060010190565b805169ffffffffffffffffffff8116811461040e57600080fd5b600080600080600060a0868803121561050e57600080fd5b610517866104dc565b945060208601519350604086015192506060860151915061053a608087016104dc565b9050929550929590935056fea26469706673582212206dba6ef3c3f18c1042e1ca985873bfafa9edec4d08198ceea920ef86c59b366e64736f6c63430008140033",
-  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061007c5760003560e01c806369ef32d21161005b57806369ef32d2146100cb57806376671808146100de578063cfadb743146100f5578063fd02dac01461013657600080fd5b8062e4768b1461008157806310f95fbe146100965780632b57cfbb1461009e575b600080fd5b61009461008f366004610413565b610165565b005b6100946101de565b6100b16100ac36600461043d565b61022f565b604080519283526020830191909152015b60405180910390f35b6100946100d9366004610469565b61031c565b6100e760005481565b6040519081526020016100c2565b61011e610103366004610493565b6002602052600090815260409020546001600160a01b031681565b6040516001600160a01b0390911681526020016100c2565b6100b161014436600461043d565b60016020818152600093845260408085209091529183529120805491015482565b60408051808201825282815242602080830191825260008054815260018083528582206001600160a01b03891680845290845291869020945185559251939092019290925591518381527f469ff3a7ada7a8c122e2729e7041dfdabfc5e8b26802fa04d7f00706149c4e24910160405180910390a25050565b6000805490806101ed836104b5565b91905055507f1aef00e516d58ced6baf53a6966cc2bec8edeceb4ebdc6521c8bd49a4cf3170560005460405161022591815260200190565b60405180910390a1565b6001600160a01b03808216600090815260026020526040812054909182911680156102d857600080826001600160a01b031663feaf968c6040518163ffffffff1660e01b815260040160a060405180830381865afa158015610295573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906102b991906104f6565b5093505092505060008213156102d55790935091506103159050565b50505b50505060008281526001602081815260408084206001600160a01b0386168552825292839020835180850190945280548085529201549201829052905b9250929050565b6001600160a01b0382166103615760405162461bcd60e51b81526020600482015260076024820152660746f6b656e3d360cc1b60448201526064015b60405180910390fd5b6001600160a01b0381166103a05760405162461bcd60e51b81526020600482015260066024820152650666565643d360d41b6044820152606401610358565b6001600160a01b0382811660008181526002602052604080822080546001600160a01b0319169486169485179055517fb9b75140a682094a10720170347bc8e03bfd71f1bb59d103cd8dc0782c5256839190a35050565b80356001600160a01b038116811461040e57600080fd5b919050565b6000806040838503121561042657600080fd5b61042f836103f7565b946020939093013593505050565b6000806040838503121561045057600080fd5b82359150610460602084016103f7565b90509250929050565b6000806040838503121561047c57600080fd5b610485836103f7565b9150610460602084016103f7565b6000602082840312156104a557600080fd5b6104ae826103f7565b9392505050565b6000600182016104d557634e487b7160e01b600052601160045260246000fd5b5060010190565b805169ffffffffffffffffffff8116811461040e57600080fd5b600080600080600060a0868803121561050e57600080fd5b610517866104dc565b945060208601519350604086015192506060860151915061053a608087016104dc565b9050929550929590935056fea26469706673582212206dba6ef3c3f18c1042e1ca985873bfafa9edec4d08198ceea920ef86c59b366e64736f6c63430008140033",
+  "solcInputHash": "eae129a48132f76c5304207cb757a475",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.20+commit.a1b79de6\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proxy\",\"type\":\"address\"}],\"name\":\"Api3ProxySet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newEpoch\",\"type\":\"uint256\"}],\"name\":\"EpochAdvanced\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"oldOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnerChanged\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"epochId\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"source\",\"type\":\"string\"}],\"name\":\"PriceSet\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"advanceEpoch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"api3Proxy\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"currentEpoch\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"epochId\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"getPrice\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"prices\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"proxy\",\"type\":\"address\"}],\"name\":\"setApi3Proxy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"setOwner\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"setPrice\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"updateFromApi3\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"getPrice(uint256,address)\":{\"returns\":{\"price\":\"- feed value as returned by API3 (no extra scaling)\",\"timestamp\":\"- snapshot timestamp\"}}},\"title\":\"OracleHub\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"getPrice(uint256,address)\":{\"notice\":\"Get price snapshot for a token in a given epoch.\"},\"setApi3Proxy(address,address)\":{\"notice\":\"Configure the API3 reader proxy for a given token.\"},\"setPrice(address,uint256)\":{\"notice\":\"Manually set price for the current epoch (useful for testing or tokens without API3 feed).\"},\"updateFromApi3(address)\":{\"notice\":\"Pull current price from API3 and store a snapshot in the current epoch.\"}},\"notice\":\"Stores per-epoch price snapshots for tokens.         Prices can come from API3 data feed proxies, or be set manually.         SettlementManager relies on:           - currentEpoch()  (via public state var)           - getPrice(epochId, token) -> (price, timestamp)\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/OracleHub.sol\":\"OracleHub\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/OracleHub.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\ninterface IApi3ReaderProxy {\\n    function read() external view returns (int224 value, uint32 timestamp);\\n}\\n\\n/**\\n * @title OracleHub\\n * @notice Stores per-epoch price snapshots for tokens.\\n *         Prices can come from API3 data feed proxies, or be set manually.\\n *\\n *         SettlementManager relies on:\\n *           - currentEpoch()  (via public state var)\\n *           - getPrice(epochId, token) -> (price, timestamp)\\n */\\ncontract OracleHub {\\n    struct PriceSnapshot {\\n        uint256 price;      // whatever decimals the feed uses\\n        uint256 timestamp;  // when this snapshot was taken\\n    }\\n\\n    address public owner;\\n    uint256 public currentEpoch; // public -> auto-generated getter currentEpoch()\\n\\n    // epoch => token => snapshot\\n    mapping(uint256 => mapping(address => PriceSnapshot)) public prices;\\n\\n    // token => API3 reader proxy\\n    mapping(address => address) public api3Proxy;\\n\\n    event OwnerChanged(address indexed oldOwner, address indexed newOwner);\\n    event EpochAdvanced(uint256 newEpoch);\\n    event PriceSet(uint256 indexed epochId, address indexed token, uint256 price, uint256 timestamp, string source);\\n    event Api3ProxySet(address indexed token, address indexed proxy);\\n\\n    modifier onlyOwner() {\\n        require(msg.sender == owner, \\\"OracleHub: not owner\\\");\\n        _;\\n    }\\n\\n    constructor() {\\n        owner = msg.sender;\\n    }\\n\\n    // ---------------- OWNER CONTROL ----------------\\n\\n    function setOwner(address newOwner) external onlyOwner {\\n        require(newOwner != address(0), \\\"OracleHub: zero owner\\\");\\n        emit OwnerChanged(owner, newOwner);\\n        owner = newOwner;\\n    }\\n\\n    function advanceEpoch() external onlyOwner {\\n        currentEpoch += 1;\\n        emit EpochAdvanced(currentEpoch);\\n    }\\n\\n    // ---------------- API3 CONFIG + UPDATE ----------------\\n\\n    /// @notice Configure the API3 reader proxy for a given token.\\n    function setApi3Proxy(address token, address proxy) external onlyOwner {\\n        require(token != address(0), \\\"OracleHub: token=0\\\");\\n        require(proxy != address(0), \\\"OracleHub: proxy=0\\\");\\n        api3Proxy[token] = proxy;\\n        emit Api3ProxySet(token, proxy);\\n    }\\n\\n    /// @notice Pull current price from API3 and store a snapshot in the current epoch.\\n    function updateFromApi3(address token) external {\\n        address proxy = api3Proxy[token];\\n        require(proxy != address(0), \\\"OracleHub: no proxy\\\");\\n\\n        (int224 value, uint32 ts) = IApi3ReaderProxy(proxy).read();\\n        require(value > 0, \\\"OracleHub: bad value\\\");\\n\\n        prices[currentEpoch][token] = PriceSnapshot({\\n            price: uint256(int256(value)),\\n            timestamp: ts == 0 ? block.timestamp : uint256(ts)\\n        });\\n\\n        emit PriceSet(currentEpoch, token, uint256(int256(value)), uint256(ts), \\\"api3\\\");\\n    }\\n\\n    // ---------------- MANUAL FALLBACK ----------------\\n\\n    /// @notice Manually set price for the current epoch (useful for testing or tokens without API3 feed).\\n    function setPrice(address token, uint256 price) external onlyOwner {\\n        require(token != address(0), \\\"OracleHub: token=0\\\");\\n        prices[currentEpoch][token] = PriceSnapshot({\\n            price: price,\\n            timestamp: block.timestamp\\n        });\\n        emit PriceSet(currentEpoch, token, price, block.timestamp, \\\"manual\\\");\\n    }\\n\\n    // ---------------- VIEW API ----------------\\n\\n    /// @notice Get price snapshot for a token in a given epoch.\\n    /// @return price - feed value as returned by API3 (no extra scaling)\\n    /// @return timestamp - snapshot timestamp\\n    function getPrice(uint256 epochId, address token)\\n        external\\n        view\\n        returns (uint256 price, uint256 timestamp)\\n    {\\n        PriceSnapshot memory snap = prices[epochId][token];\\n        return (snap.price, snap.timestamp);\\n    }\\n}\\n\",\"keccak256\":\"0x176e15e984b9942ac6f104ce963001d5f2eae40cdcfc7f967575589180fd2f30\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50600080546001600160a01b03191633179055610904806100326000396000f3fe608060405234801561001057600080fd5b506004361061009d5760003560e01c8063766718081161006657806376671808146101515780638da5cb5b146101685780639461f3531461019357806394e03c4b146101bc578063fd02dac0146101cf57600080fd5b8062e4768b146100a257806312ca0093146100b757806313af4035146100ca5780632b57cfbb146100dd5780633cf80e6c14610149575b600080fd5b6100b56100b036600461078e565b610201565b005b6100b56100c53660046107b8565b61032b565b6100b56100d83660046107eb565b610442565b61012f6100eb36600461080d565b60009182526002602090815260408084206001600160a01b039390931684529181529181902081518083019092528054808352600190910154919092018190529091565b604080519283526020830191909152015b60405180910390f35b6100b5610515565b61015a60015481565b604051908152602001610140565b60005461017b906001600160a01b031681565b6040516001600160a01b039091168152602001610140565b61017b6101a13660046107eb565b6003602052600090815260409020546001600160a01b031681565b6100b56101ca3660046107eb565b61058e565b61012f6101dd36600461080d565b60026020908152600092835260408084209091529082529020805460019091015482565b6000546001600160a01b031633146102345760405162461bcd60e51b815260040161022b90610830565b60405180910390fd5b6001600160a01b03821661027f5760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a20746f6b656e3d360741b604482015260640161022b565b604080518082018252828152426020808301828152600180546000908152600284528681206001600160a01b038a16808352945286902094518555905193810193909355915492519192917f5d6a542132569c924e97f33267912181faabb5ada5335ec74762481b45ff0e5f9161031f918691909182526020820152606060408201819052600690820152651b585b9d585b60d21b608082015260a00190565b60405180910390a35050565b6000546001600160a01b031633146103555760405162461bcd60e51b815260040161022b90610830565b6001600160a01b0382166103a05760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a20746f6b656e3d360741b604482015260640161022b565b6001600160a01b0381166103eb5760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a2070726f78793d360741b604482015260640161022b565b6001600160a01b0382811660008181526003602052604080822080546001600160a01b0319169486169485179055517f6e165b0813c98be45f54d74d3beda14859362bd3be1511ef034728bb64be05389190a35050565b6000546001600160a01b0316331461046c5760405162461bcd60e51b815260040161022b90610830565b6001600160a01b0381166104ba5760405162461bcd60e51b815260206004820152601560248201527427b930b1b632a43ab11d103d32b9379037bbb732b960591b604482015260640161022b565b600080546040516001600160a01b03808516939216917fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c91a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461053f5760405162461bcd60e51b815260040161022b90610830565b6001806000828254610551919061085e565b90915550506001546040519081527fb7f0e37f8e78f28f1f21b98f426d307e949c22f2997ca4b562ee90c3e5b30b309060200160405180910390a1565b6001600160a01b0380821660009081526003602052604090205416806105ec5760405162461bcd60e51b81526020600482015260136024820152724f7261636c654875623a206e6f2070726f787960681b604482015260640161022b565b600080826001600160a01b03166357de26a46040518163ffffffff1660e01b81526004016040805180830381865afa15801561062c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106509190610885565b91509150600082601b0b1361069e5760405162461bcd60e51b81526020600482015260146024820152734f7261636c654875623a206261642076616c756560601b604482015260640161022b565b604051806040016040528083601b0b81526020018263ffffffff166000146106cc578263ffffffff166106ce565b425b90526001805460009081526002602090815260408083206001600160a01b038a168085529083529281902085518155948201519484019490945591548351601b87900b815263ffffffff8616938101939093526060838501819052600490840152636170693360e01b608084015292519092917f5d6a542132569c924e97f33267912181faabb5ada5335ec74762481b45ff0e5f919081900360a00190a350505050565b80356001600160a01b038116811461078957600080fd5b919050565b600080604083850312156107a157600080fd5b6107aa83610772565b946020939093013593505050565b600080604083850312156107cb57600080fd5b6107d483610772565b91506107e260208401610772565b90509250929050565b6000602082840312156107fd57600080fd5b61080682610772565b9392505050565b6000806040838503121561082057600080fd5b823591506107e260208401610772565b60208082526014908201527327b930b1b632a43ab11d103737ba1037bbb732b960611b604082015260600190565b8082018082111561087f57634e487b7160e01b600052601160045260246000fd5b92915050565b6000806040838503121561089857600080fd5b825180601b0b81146108a957600080fd5b602084015190925063ffffffff811681146108c357600080fd5b80915050925092905056fea26469706673582212200f02a8467ffc1fd8f8a00d9efe4863fba639745e8695ab016313f5127f75c59964736f6c63430008140033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061009d5760003560e01c8063766718081161006657806376671808146101515780638da5cb5b146101685780639461f3531461019357806394e03c4b146101bc578063fd02dac0146101cf57600080fd5b8062e4768b146100a257806312ca0093146100b757806313af4035146100ca5780632b57cfbb146100dd5780633cf80e6c14610149575b600080fd5b6100b56100b036600461078e565b610201565b005b6100b56100c53660046107b8565b61032b565b6100b56100d83660046107eb565b610442565b61012f6100eb36600461080d565b60009182526002602090815260408084206001600160a01b039390931684529181529181902081518083019092528054808352600190910154919092018190529091565b604080519283526020830191909152015b60405180910390f35b6100b5610515565b61015a60015481565b604051908152602001610140565b60005461017b906001600160a01b031681565b6040516001600160a01b039091168152602001610140565b61017b6101a13660046107eb565b6003602052600090815260409020546001600160a01b031681565b6100b56101ca3660046107eb565b61058e565b61012f6101dd36600461080d565b60026020908152600092835260408084209091529082529020805460019091015482565b6000546001600160a01b031633146102345760405162461bcd60e51b815260040161022b90610830565b60405180910390fd5b6001600160a01b03821661027f5760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a20746f6b656e3d360741b604482015260640161022b565b604080518082018252828152426020808301828152600180546000908152600284528681206001600160a01b038a16808352945286902094518555905193810193909355915492519192917f5d6a542132569c924e97f33267912181faabb5ada5335ec74762481b45ff0e5f9161031f918691909182526020820152606060408201819052600690820152651b585b9d585b60d21b608082015260a00190565b60405180910390a35050565b6000546001600160a01b031633146103555760405162461bcd60e51b815260040161022b90610830565b6001600160a01b0382166103a05760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a20746f6b656e3d360741b604482015260640161022b565b6001600160a01b0381166103eb5760405162461bcd60e51b815260206004820152601260248201527104f7261636c654875623a2070726f78793d360741b604482015260640161022b565b6001600160a01b0382811660008181526003602052604080822080546001600160a01b0319169486169485179055517f6e165b0813c98be45f54d74d3beda14859362bd3be1511ef034728bb64be05389190a35050565b6000546001600160a01b0316331461046c5760405162461bcd60e51b815260040161022b90610830565b6001600160a01b0381166104ba5760405162461bcd60e51b815260206004820152601560248201527427b930b1b632a43ab11d103d32b9379037bbb732b960591b604482015260640161022b565b600080546040516001600160a01b03808516939216917fb532073b38c83145e3e5135377a08bf9aab55bc0fd7c1179cd4fb995d2a5159c91a3600080546001600160a01b0319166001600160a01b0392909216919091179055565b6000546001600160a01b0316331461053f5760405162461bcd60e51b815260040161022b90610830565b6001806000828254610551919061085e565b90915550506001546040519081527fb7f0e37f8e78f28f1f21b98f426d307e949c22f2997ca4b562ee90c3e5b30b309060200160405180910390a1565b6001600160a01b0380821660009081526003602052604090205416806105ec5760405162461bcd60e51b81526020600482015260136024820152724f7261636c654875623a206e6f2070726f787960681b604482015260640161022b565b600080826001600160a01b03166357de26a46040518163ffffffff1660e01b81526004016040805180830381865afa15801561062c573d6000803e3d6000fd5b505050506040513d601f19601f820116820180604052508101906106509190610885565b91509150600082601b0b1361069e5760405162461bcd60e51b81526020600482015260146024820152734f7261636c654875623a206261642076616c756560601b604482015260640161022b565b604051806040016040528083601b0b81526020018263ffffffff166000146106cc578263ffffffff166106ce565b425b90526001805460009081526002602090815260408083206001600160a01b038a168085529083529281902085518155948201519484019490945591548351601b87900b815263ffffffff8616938101939093526060838501819052600490840152636170693360e01b608084015292519092917f5d6a542132569c924e97f33267912181faabb5ada5335ec74762481b45ff0e5f919081900360a00190a350505050565b80356001600160a01b038116811461078957600080fd5b919050565b600080604083850312156107a157600080fd5b6107aa83610772565b946020939093013593505050565b600080604083850312156107cb57600080fd5b6107d483610772565b91506107e260208401610772565b90509250929050565b6000602082840312156107fd57600080fd5b61080682610772565b9392505050565b6000806040838503121561082057600080fd5b823591506107e260208401610772565b60208082526014908201527327b930b1b632a43ab11d103737ba1037bbb732b960611b604082015260600190565b8082018082111561087f57634e487b7160e01b600052601160045260246000fd5b92915050565b6000806040838503121561089857600080fd5b825180601b0b81146108a957600080fd5b602084015190925063ffffffff811681146108c357600080fd5b80915050925092905056fea26469706673582212200f02a8467ffc1fd8f8a00d9efe4863fba639745e8695ab016313f5127f75c59964736f6c63430008140033",
   "devdoc": {
     "kind": "dev",
-    "methods": {},
+    "methods": {
+      "getPrice(uint256,address)": {
+        "returns": {
+          "price": "- feed value as returned by API3 (no extra scaling)",
+          "timestamp": "- snapshot timestamp"
+        }
+      }
+    },
+    "title": "OracleHub",
     "version": 1
   },
   "userdoc": {
     "kind": "user",
-    "methods": {},
+    "methods": {
+      "getPrice(uint256,address)": {
+        "notice": "Get price snapshot for a token in a given epoch."
+      },
+      "setApi3Proxy(address,address)": {
+        "notice": "Configure the API3 reader proxy for a given token."
+      },
+      "setPrice(address,uint256)": {
+        "notice": "Manually set price for the current epoch (useful for testing or tokens without API3 feed)."
+      },
+      "updateFromApi3(address)": {
+        "notice": "Pull current price from API3 and store a snapshot in the current epoch."
+      }
+    },
+    "notice": "Stores per-epoch price snapshots for tokens.         Prices can come from API3 data feed proxies, or be set manually.         SettlementManager relies on:           - currentEpoch()  (via public state var)           - getPrice(epochId, token) -> (price, timestamp)",
     "version": 1
   },
   "storageLayout": {
     "storage": [
       {
-        "astId": 544,
+        "astId": 539,
+        "contract": "contracts/OracleHub.sol:OracleHub",
+        "label": "owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 541,
         "contract": "contracts/OracleHub.sol:OracleHub",
         "label": "currentEpoch",
         "offset": 0,
-        "slot": "0",
+        "slot": "1",
         "type": "t_uint256"
       },
       {
-        "astId": 551,
+        "astId": 548,
         "contract": "contracts/OracleHub.sol:OracleHub",
         "label": "prices",
         "offset": 0,
-        "slot": "1",
-        "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(PriceSnapshot)542_storage))"
+        "slot": "2",
+        "type": "t_mapping(t_uint256,t_mapping(t_address,t_struct(PriceSnapshot)537_storage))"
       },
       {
-        "astId": 555,
+        "astId": 552,
         "contract": "contracts/OracleHub.sol:OracleHub",
-        "label": "chainlinkFeed",
+        "label": "api3Proxy",
         "offset": 0,
-        "slot": "2",
+        "slot": "3",
         "type": "t_mapping(t_address,t_address)"
       }
     ],
@@ -263,26 +369,26 @@
         "numberOfBytes": "32",
         "value": "t_address"
       },
-      "t_mapping(t_address,t_struct(PriceSnapshot)542_storage)": {
+      "t_mapping(t_address,t_struct(PriceSnapshot)537_storage)": {
         "encoding": "mapping",
         "key": "t_address",
         "label": "mapping(address => struct OracleHub.PriceSnapshot)",
         "numberOfBytes": "32",
-        "value": "t_struct(PriceSnapshot)542_storage"
+        "value": "t_struct(PriceSnapshot)537_storage"
       },
-      "t_mapping(t_uint256,t_mapping(t_address,t_struct(PriceSnapshot)542_storage))": {
+      "t_mapping(t_uint256,t_mapping(t_address,t_struct(PriceSnapshot)537_storage))": {
         "encoding": "mapping",
         "key": "t_uint256",
         "label": "mapping(uint256 => mapping(address => struct OracleHub.PriceSnapshot))",
         "numberOfBytes": "32",
-        "value": "t_mapping(t_address,t_struct(PriceSnapshot)542_storage)"
+        "value": "t_mapping(t_address,t_struct(PriceSnapshot)537_storage)"
       },
-      "t_struct(PriceSnapshot)542_storage": {
+      "t_struct(PriceSnapshot)537_storage": {
         "encoding": "inplace",
         "label": "struct OracleHub.PriceSnapshot",
         "members": [
           {
-            "astId": 539,
+            "astId": 534,
             "contract": "contracts/OracleHub.sol:OracleHub",
             "label": "price",
             "offset": 0,
@@ -290,7 +396,7 @@
             "type": "t_uint256"
           },
           {
-            "astId": 541,
+            "astId": 536,
             "contract": "contracts/OracleHub.sol:OracleHub",
             "label": "timestamp",
             "offset": 0,
