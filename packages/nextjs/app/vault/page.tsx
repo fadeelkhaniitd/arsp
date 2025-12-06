@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Address, parseEther } from "viem";
+import { Address, parseUnits } from "viem";
 import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
@@ -16,6 +16,13 @@ const erc20Abi = [
       { name: "amount", type: "uint256" },
     ],
     outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "decimals",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint8" }],
   },
 ] as const;
 
@@ -50,6 +57,7 @@ export default function VaultPage() {
   const [erc20Token, setErc20Token] = useState("");
   const [erc20Amount, setErc20Amount] = useState("0");
   const [erc20WithdrawAmount, setErc20WithdrawAmount] = useState("0");
+  const [erc20Decimals, setErc20Decimals] = useState<number | null>(null);
 
   // ERC721 state
   const [nftToken, setNftToken] = useState("");
@@ -65,17 +73,33 @@ export default function VaultPage() {
     if (!nftVaultAddr || !nftVaultAbi) throw new Error("NFTVault contract not loaded.");
   }
 
+  // Helper: fetch decimals lazily for given ERC20
+  const getTokenDecimals = async (token: string): Promise<number> => {
+    if (erc20Decimals !== null && token.toLowerCase() === erc20Token.toLowerCase()) {
+      return erc20Decimals;
+    }
+    const dec = (await publicClient!.readContract({
+      address: token as Address,
+      abi: erc20Abi,
+      functionName: "decimals",
+    })) as number;
+    setErc20Decimals(dec);
+    return dec;
+  };
+
   // ---------------- ERC20: Deposit (approve + deposit) ----------------
 
   const handleDepositErc20 = async () => {
     try {
       ensureReady();
       if (!erc20Token) throw new Error("ERC20 token address required.");
-      const amount = parseEther(erc20Amount || "0");
-      if (amount <= 0n) throw new Error("Deposit amount must be > 0.");
+      if (!erc20Amount || Number(erc20Amount) <= 0) throw new Error("Deposit amount must be > 0.");
 
-      // 1) Approve vault to spend tokens
-      setStatus("Approving Vault to spend your ERC20...");
+      const dec = await getTokenDecimals(erc20Token);
+      const amount = parseUnits(erc20Amount, dec);
+
+      // 1) Approve
+      setStatus(`Approving Vault to spend your ERC20 (decimals = ${dec})...`);
       const approveHash = await writeContractAsync({
         address: erc20Token as Address,
         abi: erc20Abi,
@@ -85,7 +109,7 @@ export default function VaultPage() {
 
       await publicClient!.waitForTransactionReceipt({ hash: approveHash });
 
-      // 2) Call Vault.deposit
+      // 2) Deposit
       setStatus("Approval mined. Depositing into Vault...");
       const depositHash = await writeContractAsync({
         address: vaultAddr!,
@@ -107,8 +131,12 @@ export default function VaultPage() {
     try {
       ensureReady();
       if (!erc20Token) throw new Error("ERC20 token address required.");
-      const amount = parseEther(erc20WithdrawAmount || "0");
-      if (amount <= 0n) throw new Error("Withdraw amount must be > 0.");
+      if (!erc20WithdrawAmount || Number(erc20WithdrawAmount) <= 0) {
+        throw new Error("Withdraw amount must be > 0.");
+      }
+
+      const dec = await getTokenDecimals(erc20Token);
+      const amount = parseUnits(erc20WithdrawAmount, dec);
 
       setStatus("Withdrawing from Vault...");
       const txHash = await writeContractAsync({
@@ -134,7 +162,6 @@ export default function VaultPage() {
       if (!nftTokenIdDeposit) throw new Error("NFT tokenId required.");
       const tokenIdBig = BigInt(nftTokenIdDeposit);
 
-      // 1) Grant approval to NFTVault
       setStatus("Approving NFTVault to manage your NFTs...");
       const approveHash = await writeContractAsync({
         address: nftToken as Address,
@@ -145,7 +172,6 @@ export default function VaultPage() {
 
       await publicClient!.waitForTransactionReceipt({ hash: approveHash });
 
-      // 2) Call NFTVault.deposit
       setStatus("Approval mined. Depositing NFT into NFTVault...");
       const txHash = await writeContractAsync({
         address: nftVaultAddr!,
@@ -196,7 +222,10 @@ export default function VaultPage() {
           className="input input-bordered"
           placeholder="ERC20 token address"
           value={erc20Token}
-          onChange={e => setErc20Token(e.target.value)}
+          onChange={e => {
+            setErc20Token(e.target.value);
+            setErc20Decimals(null); // reset cached decimals when token changes
+          }}
         />
 
         <div className="grid grid-cols-2 gap-4">
@@ -205,7 +234,7 @@ export default function VaultPage() {
             <span className="font-medium">Deposit</span>
             <input
               className="input input-bordered"
-              placeholder="Amount (assumes 18 decimals)"
+              placeholder="Amount (human units)"
               value={erc20Amount}
               onChange={e => setErc20Amount(e.target.value)}
             />
@@ -219,7 +248,7 @@ export default function VaultPage() {
             <span className="font-medium">Withdraw</span>
             <input
               className="input input-bordered"
-              placeholder="Amount (assumes 18 decimals)"
+              placeholder="Amount (human units)"
               value={erc20WithdrawAmount}
               onChange={e => setErc20WithdrawAmount(e.target.value)}
             />
