@@ -1,12 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  useAccount,
-  usePublicClient,
-  useWriteContract,
-} from "wagmi";
 import { Address, parseEther } from "viem";
+import { useAccount, usePublicClient, useWriteContract } from "wagmi";
 import { useDeployedContractInfo } from "~~/hooks/scaffold-eth";
 
 // Minimal ERC20 ABI (approve + allowance)
@@ -34,29 +30,29 @@ const erc20Abi = [
 ] as const;
 
 // Minimal ERC721 ABI (for direct safeTransfer or approvals if you ever need)
-const _erc721Abi = [
-  {
-    type: "function",
-    name: "safeTransferFrom",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "from", type: "address" },
-      { name: "to", type: "address" },
-      { name: "tokenId", type: "uint256" },
-    ],
-    outputs: [],
-  },
-  {
-    type: "function",
-    name: "setApprovalForAll",
-    stateMutability: "nonpayable",
-    inputs: [
-      { name: "operator", type: "address" },
-      { name: "approved", type: "bool" },
-    ],
-    outputs: [],
-  },
-] as const;
+// const erc721Abi = [
+//   {
+//     type: "function",
+//     name: "safeTransferFrom",
+//     stateMutability: "nonpayable",
+//     inputs: [
+//       { name: "from", type: "address" },
+//       { name: "to", type: "address" },
+//       { name: "tokenId", type: "uint256" },
+//     ],
+//     outputs: [],
+//   },
+//   {
+//     type: "function",
+//     name: "setApprovalForAll",
+//     stateMutability: "nonpayable",
+//     inputs: [
+//       { name: "operator", type: "address" },
+//       { name: "approved", type: "bool" },
+//     ],
+//     outputs: [],
+//   },
+// ] as const;
 
 export default function VaultPage() {
   const { address } = useAccount();
@@ -281,9 +277,7 @@ export default function VaultPage() {
           </button>
         </div>
         {erc20Allowance !== null && (
-          <div className="text-sm text-gray-600">
-            Current allowance for Vault: {erc20Allowance} (raw units)
-          </div>
+          <div className="text-sm text-gray-600">Current allowance for Vault: {erc20Allowance} (raw units)</div>
         )}
       </section>
 
@@ -360,9 +354,7 @@ export default function VaultPage() {
               </button>
             </div>
             {nftOwnerCheck && (
-              <div className="text-sm text-gray-600">
-                NFTVault ownerOf(token, tokenId): {nftOwnerCheck}
-              </div>
+              <div className="text-sm text-gray-600">NFTVault ownerOf(token, tokenId): {nftOwnerCheck}</div>
             )}
           </div>
         </div>
