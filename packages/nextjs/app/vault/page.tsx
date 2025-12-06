@@ -34,7 +34,7 @@ const erc20Abi = [
 ] as const;
 
 // Minimal ERC721 ABI (for direct safeTransfer or approvals if you ever need)
-const erc721Abi = [
+const _erc721Abi = [
   {
     type: "function",
     name: "safeTransferFrom",
