@@ -1271,7 +1271,7 @@ const deployedContracts = {
   },
   11155111: {
     NFTVault: {
-      address: "0x55c891dEBB0741E8294cD3998D1fa4442824DE4f",
+      address: "0x2996ea516208A57C207edc2457858Fa905e1d141",
       abi: [
         {
           inputs: [],
@@ -1500,10 +1500,10 @@ const deployedContracts = {
       inheritedFunctions: {
         onERC721Received: "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       },
-      deployedOnBlock: 9780021,
+      deployedOnBlock: 9780165,
     },
     OracleHub: {
-      address: "0x4fA6daabAd16350FB358Dfc944AFf4574A844Ba3",
+      address: "0x1E83Ac0ec11694AfFb4caaE25DdA34668e06A7a3",
       abi: [
         {
           inputs: [],
@@ -1772,10 +1772,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9780022,
+      deployedOnBlock: 9780166,
     },
     SettlementManager: {
-      address: "0x8E739015E0e61BEca1fB23A91815ba356cF653B6",
+      address: "0x20b773be890DCAd1eEDDcABDa807498Db5136D04",
       abi: [
         {
           inputs: [
@@ -2614,10 +2614,10 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9780023,
+      deployedOnBlock: 9780167,
     },
     Vault: {
-      address: "0xC611069135dF8B510F9C1c4eD12BCF5a8c11A32A",
+      address: "0xBdcdE5Ce4ecAd2966e4A34FFBD5c1626aead667d",
       abi: [
         {
           inputs: [],
@@ -2830,7 +2830,7 @@ const deployedContracts = {
         },
       ],
       inheritedFunctions: {},
-      deployedOnBlock: 9780020,
+      deployedOnBlock: 9780164,
     },
   },
 } as const;

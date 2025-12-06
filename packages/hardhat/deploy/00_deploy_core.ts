@@ -96,12 +96,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     // Example (pseudo):
     //
     const USDC_TOKEN: string = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // USDC on Sepolia
+    const ETH_TOKEN: string = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+
     const USDC_API3_PROXY: string = "0xD3C586Eec1C6C3eC41D276a23944dea080eDCf7f";
-    // const WETH_TOKEN: string = "0x...";        // WETH on Sepolia
-    // const ETH_USD_FEED: string = "0x...";      // Chainlink ETH/USD feed on Sepolia
+    const ETH_API3_PROXY: string = "0x5b0cf2b36a65a6BB085D501B971e4c102B9Cd473";
     //
     await (oracle as any).setApi3Proxy(USDC_TOKEN, USDC_API3_PROXY);
-    // await (oracle as any).setChainlinkFeed(WETH_TOKEN, ETH_USD_FEED);
+    await (oracle as any).setApi3Proxy(ETH_TOKEN, ETH_API3_PROXY);
 
     // You can also leave this block empty and set feeds later via Debug UI.
   }
